@@ -69,6 +69,12 @@ def test_dry_run_anything_else_is_true(value: str) -> None:
     assert parse_ok(dry_run=value).dry_run is True
 
 
+def test_base_url_with_credentials_is_rejected_without_echo() -> None:
+    err = parse_err(base_url="http://user:hunter2@127.0.0.1:8688")
+    assert "hunter2" not in err.message
+    assert "user:password@" in err.message
+
+
 def test_base_url_strips_trailing_slash_and_whitespace() -> None:
     assert parse_ok(base_url=" http://127.0.0.1:8688/music/ ").base_url == (
         "http://127.0.0.1:8688/music"

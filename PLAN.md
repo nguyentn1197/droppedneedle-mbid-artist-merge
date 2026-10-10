@@ -270,7 +270,7 @@ Manifest rules to keep in mind:
 
 | Key | Type | Default | Rule |
 |---|---|---|---|
-| `base_url` | str | `http://127.0.0.1:8688` | must start with `http://` or `https://`; strip trailing `/` |
+| `base_url` | str | `http://127.0.0.1:8688` | must start with `http://` or `https://`; strip trailing `/`; must not contain `user:password@` (httpx would send Basic auth instead of the bearer, and it could leak into messages) |
 | `username` / `password` | str | "" | used when `api_token` is empty; both required then. The password is **not** trimmed (a password may start or end with a space) |
 | `api_token` | str | "" | if set, wins over username/password; never logged |
 | `dry_run` | bool | **true** | false only for `false`, `0`, `no`, `off` (case-insensitive); **anything else is true** |
@@ -317,7 +317,7 @@ def fold(value: str) -> str:
 ### 7.4 Sampling a candidate's files
 Pick up to `samples_per_artist` tracks, spread across albums round-robin (track 1 of every album, then track 2 of every album, …):
 
-1. `GET /library/artists/{id}/albums`, then `GET /library/albums/{album_id}/tracks` for each album (stop fetching albums once enough tracks are queued). **Role = `album_artist`.**
+1. `GET /library/artists/{id}/albums`, then `GET /library/albums/{album_id}/tracks` for each album, stopping once `samples_per_artist` **non-empty** albums are fetched: round-robin over those picks exactly what it would pick over all albums, with at most `samples_per_artist` track-list calls. **Role = `album_artist`.**
 2. If more samples are needed: `GET /library/artists/{id}/appearances?limit=100&offset=0`. Take the tracks listed under each item. **Role = `track_artist`.**
 3. For each sampled track: `GET /library/tracks/{track_id}/tags`.
    - 400/404 → record a `sample_error` and continue.
@@ -434,7 +434,7 @@ In **dry-run**, run steps 1–4 (all read-only) and record `would_merge` with `r
 | 409 `STALE_REVISION` on preview/merge | per-artist `stale`; continue |
 | 400 on `/tags` | per-sample `sample_error`; continue |
 | time budget exceeded | finish the current artist, save state, report `partial: true` |
-| `asyncio.CancelledError` (host timeout or disable) | let it propagate; a `finally` saves state best-effort, releases the lease and logs out |
+| `asyncio.CancelledError` (host timeout or disable) | let it propagate; a `finally` saves state best-effort, releases the lease and logs out. The saved report has `status: ok`, `partial: true` and a `cancelled` error entry |
 | unexpected exception | catch in `on_tick`, log with traceback, report `internal_error`; never raise into the host |
 
 ### 7.9 Pacing
@@ -456,7 +456,7 @@ Keys (each must match `^[a-z0-9][a-z0-9/_-]{0,63}$`, so no dots):
 | `state/lease` | `{"run_id", "trigger", "started_at", "expires_at"}` | a run skips if an unexpired lease exists; `expires_at = started_at + time_budget + 120 s`; removed (written as `{}`) on exit |
 | `state/cursor` | `{"after_id": str}` | inventory window position |
 | `state/cache` | `{"version": 1, "artists": {id: {"row_revision", "decision", "mbid", "checked_at"}}}` | prune entries for ids absent from inventory; keep < 5 MiB (drop oldest `checked_at` first) |
-| `state/last-report` | report JSON (§9) | capped < 900 KiB so the route can return it |
+| `state/last-report` | report JSON (§9) | capped < 900 KiB so the route can return it. A `lease_held` run does not overwrite it (the running run will) |
 
 Writes are best-effort: a failure logs a warning and never fails the run. A wiped plugin folder (reinstall) just means a cold cache.
 

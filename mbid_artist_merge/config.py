@@ -65,7 +65,10 @@ class Settings:
 
         base_url = text("base_url") or DEFAULT_BASE_URL
         parts = urlsplit(base_url)
-        if parts.scheme.lower() not in ("http", "https") or not parts.netloc:
+        if "@" in parts.netloc:
+            # httpx would send Basic auth from it instead of the bearer token
+            errors.append("base_url must not contain user:password@")
+        elif parts.scheme.lower() not in ("http", "https") or not parts.hostname:
             errors.append(f"base_url must start with http:// or https:// (got {base_url!r})")
         base_url = base_url.rstrip("/")
 

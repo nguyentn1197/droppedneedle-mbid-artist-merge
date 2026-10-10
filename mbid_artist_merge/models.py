@@ -129,3 +129,5 @@ class Decision:
     conflicting_mbids: tuple[str, ...] = ()
     peers: tuple[Artist, ...] = ()
     detail: str | None = None
+    reference_counts: Mapping[str, Any] | None = None
+    cached: bool = False
