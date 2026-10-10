@@ -44,9 +44,9 @@ to it. See [`docs/BACKGROUND.md`](docs/BACKGROUND.md) for why the split happens.
 **From GitHub:** in DroppedNeedle, open **Settings → Plugins**, paste
 `https://github.com/deadmanproqn/droppedneedle-mbid-artist-merge` and install.
 
-**By hand:** copy `plugin.toml`, `plugin.py` and the `mbid_artist_merge/` folder
-into `/app/plugins/mbid-artist-merge/`, then restart DroppedNeedle (plugins are
-discovered at startup).
+**By hand:** copy `plugin.toml`, `plugin.py`, the `mbid_artist_merge/` folder and
+the `ui/` folder into `/app/plugins/mbid-artist-merge/`, then restart DroppedNeedle
+(plugins are discovered at startup).
 
 Then edit the plugin in **Settings → Plugins**, fill in the settings below and
 enable it. Enabling starts a dry run straight away; after that it runs every
@@ -74,9 +74,27 @@ All values are text. Leave a field empty to use the default.
 A number out of range is not clamped: the run stops with `status: config_error`
 so you notice.
 
+## The settings panel
+
+In **Settings → Plugins**, open the plugin's card and expand **Plugin panel**
+(admins only, while the plugin is enabled). It shows:
+
+- whether the plugin is in **Dry run** or **Live** mode, and how the last run went;
+- the counts per decision, then every artist that needs a look, most important
+  first ("Would merge Otonose Kanade → 音乃瀬奏", "Conflicting MBIDs", …);
+- problems from the last run, and settings errors.
+
+**Run now** starts a run straight away; the panel shows *Running…* and updates
+when it finishes. In live mode it asks for a second click first, because merges
+cannot be undone. The panel is a sandboxed frame without network access: it talks
+to the plugin only through DroppedNeedle's read-only panel bridge (the plugin's
+`search` route). Starting a run that way needs a one-time code the panel fetches
+first, so a link from another site cannot start runs.
+
 ## Reading the report
 
-While signed in as an admin, open
+The panel shows a summary. For everything, including the files sampled for each
+artist, open (while signed in as an admin)
 
 ```
 https://<your-server>/api/v1/plugins/ext/mbid-artist-merge/report
@@ -121,8 +139,8 @@ subscribed to notices see it, nothing in the DroppedNeedle UI does.
 1. Read the dry-run report and check every `would_merge` pair.
 2. Stop DroppedNeedle, back up `library.db`, start it again.
 3. Set `dry_run` to `false` and save. (Saving does not start a run.)
-4. Either wait for the next scheduled run, disable and re-enable the plugin, or
-   start one now:
+4. Press **Run now** in the plugin panel (and confirm), or wait for the next
+   scheduled run, or disable and re-enable the plugin, or start one from a shell:
    ```bash
    curl -X POST -H "Authorization: Bearer $TOKEN" \
      https://<your-server>/api/v1/plugins/ext/mbid-artist-merge/run
@@ -149,7 +167,13 @@ uv sync
 uv run ruff check . && uv run ruff format --check .
 uv run pytest -q                    # unit + integration against a fake server
 bash scripts/check_manifest.sh      # DroppedNeedle's own manifest loader
+uv run python scripts/ui/preview.py --screenshot   # render the panel (Edge/Chrome)
 ```
+
+`scripts/ui/preview.py` renders `ui/panel.js` the way the settings page embeds it
+(same sandbox, CSP and size) against a fake bridge, in several states (dry run,
+running, finished, live confirm, errors), as HTML and PNG under
+`.cache/panel-preview/`.
 
 End-to-end against a real DroppedNeedle v2.15.0 built from source (Linux, or
 Windows with Git Bash): see [`scripts/e2e/README.md`](scripts/e2e/README.md).

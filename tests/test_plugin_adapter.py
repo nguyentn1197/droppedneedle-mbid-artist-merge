@@ -269,3 +269,109 @@ async def test_publish_failure_is_harmless(
     plugin._ctx.publish = broken
     await plugin.on_tick()
     assert "notice_failed" in caplog.text
+
+
+# --- panel bridge: GET search -----------------------------------------------
+
+
+async def panel(plugin: Any, query: str = "") -> Any:
+    response = await plugin.handle_route("GET", "search", {"query": query} if query else {}, None)
+    assert response.status == 200
+    return response.body
+
+
+async def test_panel_state_before_any_run(make_plugin: Any) -> None:
+    state = await panel(make_plugin())
+    assert state["report"] is None
+    assert state["running"] is False
+    assert state["dry_run"] is True
+    assert state["max_merges_per_run"] == 10
+    assert isinstance(state["run_code"], str) and len(state["run_code"]) >= 16
+
+
+async def test_panel_run_with_the_code_starts_a_run(make_plugin: Any) -> None:
+    plugin = make_plugin()
+    code = (await panel(plugin))["run_code"]
+    started = await panel(plugin, f"run:{code}")
+    assert started["started"] is True
+    await plugin._task
+    state = await panel(plugin)
+    assert state["running"] is False
+    assert state["report"]["run_id"] == started["run_id"]
+    assert state["report"]["trigger"] == "manual"
+    assert state["report"]["totals"]["would_merge"] == 1
+    assert state["run_code"] != code  # single use
+
+
+@pytest.mark.parametrize("query", ["run:", "run:wrong", "run: x"])
+async def test_panel_run_with_a_wrong_code_does_nothing(make_plugin: Any, query: str) -> None:
+    plugin = make_plugin()
+    await panel(plugin)  # a code exists
+    assert await panel(plugin, query) == {"started": False, "reason": "stale_code"}
+    assert plugin._task is None
+
+
+@pytest.mark.parametrize("query", ["run", "RUN:x", "report", "anything"])
+async def test_other_queries_just_return_the_state(make_plugin: Any, query: str) -> None:
+    plugin = make_plugin()
+    state = await panel(plugin, query)
+    assert "run_code" in state
+    assert plugin._task is None
+
+
+async def test_panel_run_code_is_single_use(make_plugin: Any) -> None:
+    plugin = make_plugin()
+    code = (await panel(plugin))["run_code"]
+    assert (await panel(plugin, f"run:{code}"))["started"] is True
+    await plugin._task
+    assert await panel(plugin, f"run:{code}") == {"started": False, "reason": "stale_code"}
+
+
+async def test_panel_run_code_expires(make_plugin: Any, monkeypatch: pytest.MonkeyPatch) -> None:
+    plugin = make_plugin()
+    code = (await panel(plugin))["run_code"]
+    issued_code, issued_at = plugin._run_code
+    plugin._run_code = (issued_code, issued_at - 601)
+    assert await panel(plugin, f"run:{code}") == {"started": False, "reason": "stale_code"}
+
+
+async def test_panel_reports_running(make_plugin: Any, store: MemoryStateStore) -> None:
+    store.data[LEASE_KEY] = json.dumps({"run_id": "x", "expires_at": "2999-01-01T00:00:00Z"})
+    plugin = make_plugin()
+    state = await panel(plugin)
+    assert state["running"] is True
+    assert await panel(plugin, f"run:{state['run_code']}") == {
+        "started": False,
+        "reason": "running",
+    }
+
+
+async def test_panel_live_settings_and_config_errors(make_plugin: Any) -> None:
+    live = await panel(make_plugin(settings={**SETTINGS, "dry_run": "false"}))
+    assert live["dry_run"] is False
+    broken = await panel(make_plugin(settings={**SETTINGS, "max_merges_per_run": "lots"}))
+    assert broken["dry_run"] is True
+    assert "max_merges_per_run" in broken["config_error"]
+
+
+async def test_panel_never_exposes_secrets(make_plugin: Any) -> None:
+    settings = {**SETTINGS, "max_artists_per_run": SETTINGS["password"]}
+    state = await panel(make_plugin(settings=settings))
+    assert SETTINGS["password"] not in json.dumps(state)
+    plugin = make_plugin()
+    await plugin.on_tick()
+    assert SETTINGS["password"] not in json.dumps(await panel(plugin))
+
+
+async def test_panel_bundle_is_declared_and_shipped() -> None:
+    manifest = tomllib.loads((REPO_ROOT / "plugin.toml").read_text(encoding="utf-8"))
+    ui = manifest["plugin_ui"]
+    assert ui["pages"] == ["panel"]
+    bundle = REPO_ROOT / ui["entry"]
+    assert bundle.is_file()
+    text = bundle.read_text(encoding="utf-8")
+    assert "search.preview" in text
+    for forbidden in ("fetch(", "XMLHttpRequest", "localStorage", "innerHTML"):
+        assert forbidden not in text, forbidden
+    routes = {(r["path"], r["method"], r["auth"]) for r in manifest["route"]}
+    assert ("search", "GET", "admin") in routes

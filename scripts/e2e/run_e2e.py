@@ -8,7 +8,8 @@ Usage (after run_server.sh, make_library.py and bootstrap.py, on a fresh data ro
 2. save dry_run=false (a save does not re-run), POST run, wait: exactly one merge
    (Otonose Kanade -> 音乃瀬奏) keeping the MusicBrainz link, nothing else changed,
    the retired id answers 308;
-3. POST run again: a no-op.
+3. start a run the way the settings panel does (GET ext/search with the one-time
+   run code): a no-op. Also checks the host serves the panel bundle.
 
 Exits non-zero on any failure and prints the server log tail.
 Environment: DN_ROOT (default .cache/dnroot), DN_PORT (default 18688).
@@ -108,6 +109,18 @@ def wait_report(
     raise E2EFailure(f"timed out waiting for {what}; last report: {json.dumps(last)[:2000]}")
 
 
+def panel(client: httpx.Client, query: str = "") -> dict[str, Any]:
+    """What the settings panel sees: the host forwards its search.preview RPC here."""
+    params = {"query": query} if query else None
+    while True:
+        response = client.get(f"{EXT}/search", params=params)
+        if response.status_code != 429:
+            break
+        time.sleep(int(response.headers.get("retry-after", "5")) + 1)
+    check(response.status_code == 200, f"GET search -> {response.status_code} {response.text}")
+    return response.json()
+
+
 def start_run(client: httpx.Client) -> str:
     for _ in range(40):
         response = ext(client, "POST", "run")
@@ -166,6 +179,26 @@ def run(client: httpx.Client) -> None:
     check(artists(client) == before, "the dry run changed the library")
     step(f"dry run ok: {decisions(dry)}")
 
+    if sys.platform == "win32":
+        step("settings panel: bundle check skipped (DroppedNeedle serves it with POSIX dir_fd)")
+    else:
+        step("settings panel: bundle served")
+        bundle = client.get(f"/plugins/{PLUGIN}/ui/panel.js")
+        check(bundle.status_code == 200, f"panel bundle -> {bundle.status_code}")
+        check("search.preview" in bundle.text, "unexpected panel bundle")
+    step("settings panel: state readable, wrong run code refused")
+    state = panel(client)
+    check(state["dry_run"] is True and state["running"] is False, f"panel state: {state}")
+    check(state["report"]["run_id"] == dry["run_id"], "panel shows another report")
+    check(state["report"]["totals"]["would_merge"] == 1, f"panel totals: {state['report']}")
+    check(
+        panel(client, "run:not-the-code") == {"started": False, "reason": "stale_code"}, "bad code"
+    )
+    check(ADMIN["password"] not in json.dumps(state), "panel state contains the password")
+    preview = os.environ.get("E2E_PANEL_STATE")
+    if preview:  # for scripts/ui/preview.py
+        Path(preview).write_text(json.dumps(state, ensure_ascii=False, indent=2), encoding="utf-8")
+
     step("save dry_run=false (must not re-run), then POST run")
     save_plugin(client, {**settings, "password": SECRET_MASK, "dry_run": "false"})
     time.sleep(5)
@@ -194,8 +227,12 @@ def run(client: httpx.Client) -> None:
     check(retired.headers.get("location", "").endswith(kanade), "308 does not point at 音乃瀬奏")
     step("live run ok: Otonose Kanade merged into 音乃瀬奏, link kept, others unchanged")
 
-    step("POST run again: must be a no-op")
-    run_id = start_run(client)
+    step("run again from the settings panel (one-time code): must be a no-op")
+    code = panel(client)["run_code"]
+    started = panel(client, f"run:{code}")
+    check(started.get("started") is True, f"panel run did not start: {started}")
+    run_id = started["run_id"]
+    check(panel(client, f"run:{code}")["reason"] in ("stale_code", "running"), "code reused")
     again = wait_report(client, lambda r: r["run_id"] == run_id, "the second live report")
     check_report(again, dry_run=False)
     check(again["totals"]["merged"] == 0, f"second run merged: {again['totals']}")

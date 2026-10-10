@@ -118,7 +118,8 @@ mbid_artist_merge/
   planner.py                pure: inventory + evidence -> Decision per artist
   runner.py                 orchestrates one run: auth, lease, inventory, sampling, merges, report
   state.py                  StateStore protocol; HostStateStore (v2) and MemoryStateStore (tests)
-  report.py                 report building, size capping, log lines
+  report.py                 report building, size capping, log lines, panel view
+ui/panel.js                 settings panel (sandboxed iframe; §9.1)
 tests/
   fixtures/api-v2.15.0/     real captured payloads (do not hand-edit; re-capture instead)
     library_snapshot.json   every GET response of the split test library (38 entries)
@@ -505,6 +506,17 @@ Shape (also the body of `GET …/report`):
   - `POST run` → if a lease is held, 200 `{"started": false, "reason": "running"}`. Else `asyncio.create_task(runner.run(trigger="manual"))` and 200 `{"started": true, "run_id": …}`. Keep a reference to the task on the instance so it isn't garbage-collected. Must return within the 5 s route budget.
   - Both are admin-only. An admin opens `https://<server>/api/v1/plugins/ext/mbid-artist-merge/report` in the browser (the session cookie authenticates it).
 - **Optional (M6):** `ctx.publish("plugin_notice", {"title": "...", "body": "..."})` after runs with merges. It only reaches other subscriber plugins; nothing in the UI shows it.
+
+### 9.1 Settings panel (0.2.0, owner-approved)
+
+Verified against v2.15.0's `PluginPanel.svelte`: a `[plugin_ui]` bundle runs in an `<iframe sandbox="allow-scripts">` with `connect-src 'none'`, ~192 px tall, admin-only, while the plugin is enabled. Its only bridge is a closed set of four read-only RPCs; `search.preview` forwards to the plugin's own `GET ext/<name>/search?query=<≤200 chars>` with the admin's session and hands the JSON back.
+
+- `[plugin_ui] entry = "ui/panel.js"`, `pages = ["panel"]`; `[[route]] search` (GET, admin, 60/min).
+- `search` with an empty query returns the panel state: `dry_run`, `max_merges_per_run` or `config_error`, `running` (task or lease), `report` = `report.panel_view(last report)` (no evidence, capped lists), `plugin_version`, and `run_code`.
+- `search` with `run:<code>` starts a run like `POST run` when `<code>` is the current one-time code (single use, 10-minute TTL, constant-time compare); otherwise `{"started": false, "reason": "stale_code"}`. The code makes this side-effecting GET safe against cross-site links: another site cannot read the state, so it cannot know the code.
+- This uses the read-only bridge for a write. The owner chose that over a report-only panel; it may break if upstream tightens the bridge. The panel keeps working as a report viewer either way.
+- Panel rules: no `fetch`, storage or `innerHTML` (artist names are user data; DOM built with `textContent`); no dialogs (sandbox), so live mode uses an inline two-step confirm.
+- Chromium enforces the iframe's `csp` attribute (`default-src 'none'`) only on navigations after it is set; the host sets it in an effect after inserting the srcdoc iframe, so inline scripts run. `scripts/ui/preview.py` mirrors that order.
 
 ## 10. Security & safety checklist
 

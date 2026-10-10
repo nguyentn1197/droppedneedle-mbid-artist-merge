@@ -1,7 +1,7 @@
 [plugin]
 name = "mbid-artist-merge"
 display_name = "MBID Artist Merge"
-version = "0.1.0"
+version = "0.2.0"
 api_version = 1
 entrypoint = "plugin:MbidArtistMerge"
 capabilities = ["scheduler", "publisher"]
@@ -12,6 +12,10 @@ homepage = "https://github.com/deadmanproqn/droppedneedle-mbid-artist-merge"
 [schedule]
 interval_minutes = 360
 run_on_load = true
+
+[plugin_ui]
+entry = "ui/panel.js"
+pages = ["panel"]
 
 [[route]]
 path = "report"
@@ -24,6 +28,14 @@ path = "run"
 method = "POST"
 auth = "admin"
 rate_limit_per_minute = 2
+
+# The settings panel's only bridge (the host's read-only search.preview RPC):
+# returns the panel state, or starts a run when given its one-time code.
+[[route]]
+path = "search"
+method = "GET"
+auth = "admin"
+rate_limit_per_minute = 60
 
 [[settings]]
 key = "base_url"

@@ -29,7 +29,7 @@ from .api import (
     Unauthorized,
     Unreachable,
 )
-from .config import INTERVAL_MINUTES, ConfigError, Settings
+from .config import INTERVAL_MINUTES, ConfigError, Settings, secret_values
 from .evidence import extract
 from .models import Artist, Decision, Outcome, Sample, TrackRef, normalize_mbid
 from .planner import Inventory, Rules, build_inventory, decide, mark_shared, round_robin, window
@@ -149,7 +149,7 @@ class Runner:
     async def run(self, trigger: str, run_id: str | None = None) -> dict[str, Any]:
         run_id = run_id or str(uuid.uuid4())
         raw = dict(self._settings_source())
-        secrets = _secrets_of(raw)
+        secrets = secret_values(raw)
         parsed = Settings.parse(raw, interval_minutes=self._interval)
         settings = parsed if isinstance(parsed, Settings) else None
         report = RunReport(
@@ -691,15 +691,6 @@ def _refs(tracks: list[Any], album_id: str | None, role: str) -> list[TrackRef]:
         if isinstance(track_id, str) and track_id:
             refs.append(TrackRef(track_id, album_id, role))  # type: ignore[arg-type]
     return refs
-
-
-def _secrets_of(raw: Mapping[str, str]) -> list[str]:
-    values = [raw.get("password"), raw.get("api_token")]
-    found = []
-    for value in values:
-        if isinstance(value, str) and value:
-            found += [value, value.strip()]
-    return found
 
 
 def trigger_for(constructed_at: float, now: float, first_tick: bool) -> str:

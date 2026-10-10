@@ -105,7 +105,7 @@ if [[ -n "$PLUGIN_SRC" && -f "$PLUGIN_SRC/plugin.toml" ]]; then
   rm -rf "$target"
   mkdir -p "$target"
   cp "$PLUGIN_SRC/plugin.toml" "$PLUGIN_SRC/plugin.py" "$target/"
-  cp -r "$PLUGIN_SRC/mbid_artist_merge" "$target/"
+  cp -r "$PLUGIN_SRC/mbid_artist_merge" "$PLUGIN_SRC/ui" "$target/"
   rm -rf "$target/mbid_artist_merge/__pycache__"
 fi
 

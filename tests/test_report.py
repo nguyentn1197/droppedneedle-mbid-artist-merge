@@ -12,6 +12,7 @@ from mbid_artist_merge.report import (
     capped_json,
     iso,
     notice_for,
+    panel_view,
     public_url,
     redact,
     summary_line,
@@ -144,3 +145,52 @@ def test_notice_only_for_merges() -> None:
     assert notice["title"] == "MBID Artist Merge: 2 artists merged"
     assert len(notice["body"]) <= 40
     assert notice["body"].startswith("Otonose Kanade -> 音乃瀬奏")
+
+
+def test_panel_view_is_compact_and_ordered() -> None:
+    report = new_report()
+    other = Artist("o", "Other Artist", None, "local_only", 1)
+    sample = Sample(
+        TrackRef("t1", "a1", "album_artist"),
+        CreditEvidence(TARGET.mbid, "credit", "album_artists", "Otonose Kanade"),
+    )
+    report.add_decision(
+        Decision(Outcome.NO_TARGET, other, mbid="22222222-2222-4222-8222-222222222222"), AT
+    )
+    report.add_decision(
+        Decision(Outcome.WOULD_MERGE, SOURCE, mbid=TARGET.mbid, target=TARGET, samples=(sample,)),
+        AT,
+    )
+    report.add_decision(Decision(Outcome.NO_MBID, other), AT)
+    report.add_error("tags", "unreadable file", track_id="t9", status=400)
+    report.finish("ok", AT)
+    view = panel_view(report.data)
+    assert view["status"] == "ok"
+    assert view["totals"] == {"would_merge": 1, "no_target": 1, "no_mbid": 1, "errors": 1}
+    assert [a["decision"] for a in view["actions"]] == ["would_merge", "no_target"]
+    first = view["actions"][0]
+    assert first == {
+        "decision": "would_merge",
+        "source": "Otonose Kanade",
+        "source_id": "src",
+        "target": "音乃瀬奏",
+        "mbid": TARGET.mbid,
+        "files": 1,
+    }
+    assert view["errors"] == [{"stage": "tags", "status": 400, "message": "unreadable file"}]
+    assert "evidence" not in json.dumps(view)
+
+
+def test_panel_view_caps_lists() -> None:
+    report = new_report()
+    for _ in range(300):
+        report.add_decision(Decision(Outcome.NO_TARGET, SOURCE), AT)
+    for n in range(40):
+        report.add_error("tags", f"e{n}")
+    view = panel_view(report.data, max_actions=100, max_errors=10)
+    assert (len(view["actions"]), view["actions_total"]) == (100, 300)
+    assert (len(view["errors"]), view["errors_total"]) == (10, 40)
+
+
+def test_panel_view_tolerates_old_or_partial_reports() -> None:
+    assert panel_view({"status": "config_error"})["actions"] == []

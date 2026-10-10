@@ -11,6 +11,7 @@ reproduces the romanized-name split.
 | `snapshot_library.py [out]` | read-only: saves every GET the plugin makes into `tests/fixtures/api-v2.15.0/library_snapshot.json` |
 | `capture_fixtures.py [out-dir]` | records one request/response per file, **including a real irreversible merge** — run only on a throwaway server right after `bootstrap.py` |
 | `run_e2e.py` | drives the installed plugin through a dry run (run_on_load), a live run and a no-op rerun, and asserts the outcome (PLAN §11.3); exits non-zero and prints the server log tail on failure |
+| `../ui/preview.py` | not e2e: renders the settings panel against a fake bridge (see the main README) |
 | `windows/` | shim copied into the server venv on Windows only: POSIX-only `os` flags, `ctypes.CDLL(None)`, a uvloop stand-in |
 
 Typical session:
@@ -47,4 +48,6 @@ Notes:
   copies `windows/sitecustomize.py` and the uvloop stand-in into the venv, installs
   `tzdata`, and seeds `config.json` with an absolute placeholder library root
   (the legacy default `/music` is not absolute on Windows). Verified: the full
-  sequence above passes on Windows 11.
+  sequence above passes on Windows 11. DroppedNeedle cannot serve plugin panel
+  bundles on Windows (POSIX-only `dir_fd`), so `run_e2e.py` skips that one check
+  there; the panel's `search` route is still exercised.

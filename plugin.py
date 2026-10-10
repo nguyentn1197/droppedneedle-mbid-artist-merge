@@ -9,7 +9,9 @@ copy of the package, so a plugin reload (any plugin save) picks up new code.
 from __future__ import annotations
 
 import asyncio
+import hmac
 import inspect
+import secrets
 import sys
 import time
 import uuid
@@ -28,9 +30,13 @@ def _prepare_imports() -> None:
 
 _prepare_imports()
 
-from mbid_artist_merge.report import notice_for
+from mbid_artist_merge import __version__
+from mbid_artist_merge.config import ConfigError, Settings, secret_values
+from mbid_artist_merge.report import notice_for, panel_view, redact
 from mbid_artist_merge.runner import Runner, trigger_for
 from mbid_artist_merge.state import HostStateStore
+
+RUN_CODE_TTL_S = 600
 
 
 class _RouteResponse:
@@ -58,6 +64,7 @@ class MbidArtistMerge:
         self._ticks = 0
         self._last_report: dict[str, Any] | None = None
         self._task: asyncio.Task[None] | None = None  # keeps the manual run alive
+        self._run_code: tuple[str, float] = ("", 0.0)  # panel Run now: (code, issued)
         self._runner = Runner(
             http=context.http,
             settings_source=lambda: context.settings,
@@ -102,19 +109,24 @@ class MbidArtistMerge:
             if verb == "GET" and subpath == "report":
                 return await self._report()
             if verb == "POST" and subpath == "run":
-                return await self._start_run()
+                return _response(200, await self._start_run())
+            if verb == "GET" and subpath == "search":
+                return await self._panel(str((query or {}).get("query") or ""))
         except Exception:  # noqa: BLE001 - answer with an error body, never a traceback
             self._log.exception("mbid-artist-merge route_failed method=%s path=%s", verb, subpath)
             return _response(500, {"error": "internal error, see the server log"})
         return _response(404, {"error": "not found"})
 
-    async def _start_run(self) -> object:
+    async def _running(self) -> bool:
+        return (self._task is not None and not self._task.done()) or await self._runner.lease_held()
+
+    async def _start_run(self) -> dict[str, Any]:
         """Start a manual run in the background; answer well inside the 5 s budget."""
-        if (self._task is not None and not self._task.done()) or await self._runner.lease_held():
-            return _response(200, {"started": False, "reason": "running"})
+        if await self._running():
+            return {"started": False, "reason": "running"}
         run_id = str(uuid.uuid4())
         self._task = asyncio.create_task(self._manual_run(run_id))
-        return _response(200, {"started": True, "run_id": run_id})
+        return {"started": True, "run_id": run_id}
 
     async def _manual_run(self, run_id: str) -> None:
         try:
@@ -127,3 +139,52 @@ class MbidArtistMerge:
         if not report:
             return _response(404, {"error": "no run yet"})
         return _response(200, report)
+
+    # --- settings panel ---------------------------------------------------
+    #
+    # The host's panel iframe has no network; its only bridge to the plugin is the
+    # read-only `search.preview` RPC, which the host forwards to GET ext/search with
+    # the admin's session. An empty query returns the panel state; `run:<code>`
+    # starts a run when <code> is the one-time code from that state. A cross-site
+    # link cannot read the state, so it cannot know the code.
+
+    async def _panel(self, query: str) -> object:
+        command = query.strip()
+        if command.startswith("run:"):
+            if not self._take_run_code(command.removeprefix("run:").strip()):
+                return _response(200, {"started": False, "reason": "stale_code"})
+            return _response(200, await self._start_run())
+        return _response(200, await self._panel_state())
+
+    async def _panel_state(self) -> dict[str, Any]:
+        raw = dict(self._ctx.settings)
+        settings = Settings.parse(raw)
+        report = self._last_report or await self._runner.last_report()
+        state: dict[str, Any] = {
+            "plugin_version": __version__,
+            "running": await self._running(),
+            "report": panel_view(report) if report else None,
+        }
+        if isinstance(settings, ConfigError):
+            state.update(dry_run=True, config_error=settings.message)
+        else:
+            state.update(dry_run=settings.dry_run, max_merges_per_run=settings.max_merges_per_run)
+        state = redact(state, secret_values(raw))
+        state["run_code"] = self._current_run_code()
+        return state
+
+    def _current_run_code(self) -> str:
+        code, issued = self._run_code
+        if not code or time.monotonic() - issued > RUN_CODE_TTL_S:
+            code = secrets.token_urlsafe(16)
+            self._run_code = (code, time.monotonic())
+        return code
+
+    def _take_run_code(self, offered: str) -> bool:
+        code, issued = self._run_code
+        if not code or not offered or time.monotonic() - issued > RUN_CODE_TTL_S:
+            return False
+        if not hmac.compare_digest(offered.encode("utf-8"), code.encode("utf-8")):
+            return False
+        self._run_code = ("", 0.0)
+        return True

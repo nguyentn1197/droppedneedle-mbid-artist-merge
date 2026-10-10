@@ -208,3 +208,75 @@ def notice_for(data: dict[str, Any], limit: int = 1000) -> dict[str, str] | None
         body = body[: limit - 3] + "..."
     noun = "artist" if merged == 1 else "artists"
     return {"title": f"MBID Artist Merge: {merged} {noun} merged", "body": body}
+
+
+# Most important first: what changed or needs attention, then what can wait.
+_PANEL_ORDER = [
+    Outcome.ERROR,
+    Outcome.MERGED,
+    Outcome.WOULD_MERGE,
+    Outcome.DEFERRED,
+    Outcome.IDENTITY_CONFLICT,
+    Outcome.STALE,
+    Outcome.CHANGED,
+    Outcome.ALREADY_MERGED,
+    Outcome.CONFLICT,
+    Outcome.AMBIGUOUS,
+    Outcome.SHARED_MBID_WITHOUT_LINK,
+    Outcome.NO_TARGET,
+    Outcome.INSUFFICIENT_EVIDENCE,
+    Outcome.EXCLUDED_MBID,
+    Outcome.EXCLUDED_TARGET,
+    Outcome.NO_SAMPLES,
+    Outcome.SELF,
+    Outcome.NO_MBID,
+]
+_PANEL_RANK = {o.value: n for n, o in enumerate(_PANEL_ORDER)}
+
+
+def panel_view(
+    data: dict[str, Any], *, max_actions: int = 200, max_errors: int = 20
+) -> dict[str, Any]:
+    """The last report trimmed for the settings panel: no evidence, capped lists."""
+    actions = sorted(
+        (a for a in data.get("actions") or [] if isinstance(a, dict)),
+        key=lambda a: _PANEL_RANK.get(a.get("decision"), len(_PANEL_RANK)),
+    )
+    errors = [e for e in data.get("errors") or [] if isinstance(e, dict)]
+    return {
+        **{
+            key: data.get(key)
+            for key in ("run_id", "trigger", "started_at", "finished_at", "status", "dry_run")
+        },
+        "partial": bool(data.get("partial")),
+        "totals": {k: v for k, v in (data.get("totals") or {}).items() if v},
+        "actions": [_panel_action(a) for a in actions[:max_actions]],
+        "actions_total": len(actions),
+        "errors": [
+            {"stage": e.get("stage"), "status": e.get("status"), "message": e.get("message")}
+            for e in errors[:max_errors]
+        ],
+        "errors_total": len(errors),
+        "warnings": list(data.get("warnings") or [])[:max_errors],
+    }
+
+
+def _panel_action(action: dict[str, Any]) -> dict[str, Any]:
+    source = action.get("source") or {}
+    target = action.get("target") or {}
+    view: dict[str, Any] = {
+        "decision": action.get("decision"),
+        "source": source.get("name"),
+        "source_id": source.get("id"),
+    }
+    for key, value in (
+        ("target", target.get("name")),
+        ("mbid", action.get("mbid")),
+        ("mbids", action.get("mbids")),
+        ("shared_with", [p.get("name") for p in action.get("shared_with") or []]),
+        ("detail", action.get("detail")),
+        ("files", len(action.get("evidence") or [])),
+    ):
+        if value:
+            view[key] = value
+    return view

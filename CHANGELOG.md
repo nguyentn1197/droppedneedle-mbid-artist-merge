@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.2.0 — 2026-10-10
+
+- Settings panel (Settings → Plugins → Plugin panel): dry-run/live mode, last
+  run status, counts, the artists that need a look (most important first),
+  problems and settings errors, and a **Run now** button (two-step confirm in live
+  mode). It polls while a run is in progress.
+- New admin route `GET …/search`, the panel's only bridge: returns the panel
+  state, or starts a run when given the one-time code from that state (single
+  use, 10 minutes), so a cross-site link cannot start runs.
+- `scripts/ui/preview.py` renders the panel against a fake bridge for review.
+
 ## 0.1.0 — 2026-10-10
 
 First release, for DroppedNeedle v2 (plugin `api_version = 1`), tested on v2.15.0.

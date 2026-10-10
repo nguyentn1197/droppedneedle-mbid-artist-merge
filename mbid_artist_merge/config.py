@@ -122,5 +122,15 @@ class Settings:
         )
 
 
+def secret_values(raw: Mapping[str, str]) -> list[str]:
+    """The secret setting values as given (and trimmed), to scrub from any output."""
+    found = []
+    for key in ("password", "api_token"):
+        value = raw.get(key)
+        if isinstance(value, str) and value:
+            found += [value, value.strip()]
+    return found
+
+
 def _split_list(value: str) -> list[str]:
     return [item.lower() for item in _LIST_SPLIT_RE.split(value) if item]
