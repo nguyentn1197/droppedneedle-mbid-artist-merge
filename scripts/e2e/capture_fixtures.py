@@ -22,8 +22,8 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 PORT = int(os.environ.get("DN_PORT", "18688"))
 BASE = f"http://127.0.0.1:{PORT}/api/v1"
 OUT = Path(sys.argv[1]) if len(sys.argv) > 1 else REPO_ROOT / "tests" / "fixtures" / "api-captured"
-ADMIN = {"username": "admin", "password": "Passw0rd!Passw0rd"}
-LISTENER = {"username": "listener", "password": "Passw0rd!Passw0rd"}
+ADMIN = {"username": "admin", "password": "MbidArtistMerge-e2e-7c41f9"}
+LISTENER = {"username": "listener", "password": "MbidArtistMerge-e2e-listener-2b8d"}
 REDACT = "<redacted-session-token>"
 
 

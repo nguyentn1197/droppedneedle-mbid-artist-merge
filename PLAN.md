@@ -567,14 +567,14 @@ Required scenarios:
 14. `plugin.py` adapter: `on_tick` swallows exceptions; `handle_route` GET report/404; POST run returns within 5 s and starts a task.
 
 ### 11.3 End-to-end against a real server (verified harness)
-Requires git, Python 3.13 (uv recommended), ffmpeg, curl, about 400 MB disk.
+Requires git, Python 3.13 (uv recommended), ffmpeg, curl, about 400 MB disk. Linux, or Windows with Git Bash (`run_server.sh` installs a small shim into the server venv; use `.venv/Scripts/python.exe`). The full sequence including `run_e2e.py` was verified on Windows 11; the Linux branch of `run_server.sh` is the original verified harness, unchanged. The admin password is unique because the server rejects passwords found by the online pwnedpasswords check (it fails open offline, which is how the fixtures were captured with `Passw0rd!Passw0rd`).
 
 ```bash
 bash scripts/e2e/run_server.sh                         # clones v2.15.0, installs, starts :18688,
                                                        # copies this plugin into the server's plugins dir
 .cache/droppedneedle/.venv/bin/python scripts/e2e/make_library.py .cache/dnroot/music
 .cache/droppedneedle/.venv/bin/python scripts/e2e/bootstrap.py
-# M5: .cache/droppedneedle/.venv/bin/python scripts/e2e/run_e2e.py
+.cache/droppedneedle/.venv/bin/python scripts/e2e/run_e2e.py
 bash scripts/e2e/run_server.sh stop
 ```
 
@@ -585,10 +585,10 @@ bash scripts/e2e/run_server.sh stop
 
 It links 音乃瀬奏 by writing one row to SQLite, because MusicBrainz identification needs network. That is test setup only.
 
-`run_e2e.py` (write in M5):
+`run_e2e.py`:
 
-1. login as `admin` / `Passw0rd!Passw0rd`;
-2. `PUT /api/v1/plugins/mbid-artist-merge {"enabled": true, "settings": {"base_url": "http://127.0.0.1:18688", "username": "admin", "password": "Passw0rd!Passw0rd"}}` (dry_run unset → true);
+1. login as `admin` / `MbidArtistMerge-e2e-7c41f9`;
+2. `PUT /api/v1/plugins/mbid-artist-merge {"enabled": true, "settings": {"base_url": "http://127.0.0.1:18688", "username": "admin", "password": "MbidArtistMerge-e2e-7c41f9"}}` (dry_run unset → true);
 3. poll `GET /api/v1/plugins/ext/mbid-artist-merge/report` until a run finishes (`run_on_load`), and assert the §7.6 expected decisions and zero merges;
 4. `PUT` again with the same settings plus `"dry_run": "false"` (send `plugin****` as the password to keep the stored value; a save does **not** re-trigger `run_on_load`), then `POST …/run`, and poll the report until `merged == 1`;
 5. assert:
@@ -596,6 +596,7 @@ It links 音乃瀬奏 by writing one row to SQLite, because MusicBrainz identifi
    - 音乃瀬奏 is `musicbrainz_linked` with `11111111-1111-4111-8111-111111111111`;
    - `GET /library/artists/<otonose id>` answers 308 (use a client with `follow_redirects=False`);
    - every other artist is unchanged;
+   - the four unchanged artists are cache hits on the live run: they show up in `totals` only, not in `actions`;
 6. `POST …/run` again and assert `merged == 0`;
 7. exit non-zero on any failure, and print the server log tail.
 

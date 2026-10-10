@@ -4,7 +4,7 @@ Usage (after scripts/e2e/run_server.sh and make_library.py):
     python scripts/e2e/bootstrap.py
 
 Steps, all through the public API except step 5:
- 1. create the first admin (admin / Passw0rd!Passw0rd) if setup is still required
+ 1. create the first admin (admin / MbidArtistMerge-e2e-7c41f9) if setup is still required
  2. replace the default /music library root with $DN_ROOT/music, policy
     "local_metadata" (scan only: no MusicBrainz lookups, no file moves)
  3. run the policy_reconcile scan the settings change asks for
@@ -34,7 +34,7 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 DN_ROOT = Path(os.environ.get("DN_ROOT", REPO_ROOT / ".cache" / "dnroot")).resolve()
 PORT = int(os.environ.get("DN_PORT", "18688"))
 BASE = f"http://127.0.0.1:{PORT}/api/v1"
-ADMIN = {"username": "admin", "password": "Passw0rd!Passw0rd"}
+ADMIN = {"username": "admin", "password": "MbidArtistMerge-e2e-7c41f9"}
 M_KANADE = "11111111-1111-4111-8111-111111111111"
 EXPECTED_ARTISTS = {
     "音乃瀬奏",

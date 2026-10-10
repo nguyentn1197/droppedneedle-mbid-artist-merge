@@ -32,7 +32,7 @@ OUT = (
 def main() -> None:
     client = httpx.Client(base_url=BASE, timeout=30, follow_redirects=False)
     token = client.post(
-        "/auth/login", json={"username": "admin", "password": "Passw0rd!Passw0rd"}
+        "/auth/login", json={"username": "admin", "password": "MbidArtistMerge-e2e-7c41f9"}
     ).json()["token"]
     client.cookies.clear()
     client.headers["Authorization"] = f"Bearer {token}"
