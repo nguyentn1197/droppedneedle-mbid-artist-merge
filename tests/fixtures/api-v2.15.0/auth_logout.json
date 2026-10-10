@@ -1,0 +1,6 @@
+{
+  "request": "POST /api/v1/auth/logout",
+  "status": 204,
+  "note": "",
+  "body": ""
+}

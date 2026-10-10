@@ -1,0 +1,7 @@
+{
+  "request": "GET /api/v1/library/artists/a8a4098f-d8fd-5921-82d5-87baa6aefb57",
+  "status": 308,
+  "note": "retired id answers 308 to the survivor",
+  "body": "",
+  "location": "/api/v1/library/artists/eae66d5e-0631-5537-9af9-2e92c28e90bc"
+}

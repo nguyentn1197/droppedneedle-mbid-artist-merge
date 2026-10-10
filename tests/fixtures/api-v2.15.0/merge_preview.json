@@ -1,0 +1,36 @@
+{
+  "request": "POST /api/v1/library/artists/merge-preview",
+  "status": 200,
+  "note": "",
+  "body": {
+    "preview_token": "1791521742.2a7c272731a38720f5e17cb169dd7bb268cc8444313e63e3b3d32853ebd29a02",
+    "source_album_ids": [],
+    "target_album_id": "eae66d5e-0631-5537-9af9-2e92c28e90bc",
+    "track_ids": [],
+    "identity_conflicts": [],
+    "aliases": [
+      "a8a4098f-d8fd-5921-82d5-87baa6aefb57"
+    ],
+    "automatic_groups": [],
+    "reference_counts": {
+      "album_credits": 2,
+      "track_credits": 6,
+      "primary_albums": 2,
+      "migration_references": 0,
+      "favorites": 0,
+      "playlist_snapshots": 0,
+      "history": 0,
+      "compatibility_ids": 0
+    }
+  },
+  "request_body": {
+    "source_artist_ids": [
+      "a8a4098f-d8fd-5921-82d5-87baa6aefb57"
+    ],
+    "surviving_artist_id": "eae66d5e-0631-5537-9af9-2e92c28e90bc",
+    "expected_revisions": {
+      "a8a4098f-d8fd-5921-82d5-87baa6aefb57": 1,
+      "eae66d5e-0631-5537-9af9-2e92c28e90bc": 1
+    }
+  }
+}

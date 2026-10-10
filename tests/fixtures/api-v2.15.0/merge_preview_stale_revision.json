@@ -1,0 +1,22 @@
+{
+  "request": "POST /api/v1/library/artists/merge-preview",
+  "status": 409,
+  "note": "",
+  "body": {
+    "error": {
+      "code": "STALE_REVISION",
+      "message": "Artist references changed before preview.",
+      "details": null
+    }
+  },
+  "request_body": {
+    "source_artist_ids": [
+      "a8a4098f-d8fd-5921-82d5-87baa6aefb57"
+    ],
+    "surviving_artist_id": "eae66d5e-0631-5537-9af9-2e92c28e90bc",
+    "expected_revisions": {
+      "a8a4098f-d8fd-5921-82d5-87baa6aefb57": 999,
+      "eae66d5e-0631-5537-9af9-2e92c28e90bc": 1
+    }
+  }
+}

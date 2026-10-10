@@ -1,0 +1,12 @@
+{
+  "request": "GET /api/v1/auth/me",
+  "status": 401,
+  "note": "token is revoked by logout",
+  "body": {
+    "error": {
+      "code": "UNAUTHORIZED",
+      "message": "Invalid or expired token",
+      "details": null
+    }
+  }
+}

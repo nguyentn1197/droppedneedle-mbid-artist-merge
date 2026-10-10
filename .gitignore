@@ -1,0 +1,12 @@
+# local DroppedNeedle clone, data root, generated test library
+.cache/
+
+# python
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+.ruff_cache/
+
+# plugin state written by the host when testing in place
+state/

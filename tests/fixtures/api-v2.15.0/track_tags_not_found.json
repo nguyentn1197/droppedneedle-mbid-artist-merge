@@ -1,0 +1,12 @@
+{
+  "request": "GET /api/v1/library/tracks/00000000-0000-0000-0000-000000000000/tags",
+  "status": 404,
+  "note": "",
+  "body": {
+    "error": {
+      "code": "NOT_FOUND",
+      "message": "Track file 00000000-0000-0000-0000-000000000000 not found",
+      "details": null
+    }
+  }
+}

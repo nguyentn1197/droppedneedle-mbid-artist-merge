@@ -1,0 +1,1465 @@
+{
+  "server": "DroppedNeedle v2.15.0",
+  "state": "split (after bootstrap.py, before any merge)",
+  "note": "keys are request paths relative to /api/v1, query string included",
+  "responses": {
+    "/auth/me": {
+      "status": 200,
+      "body": {
+        "id": "19f7158e-ac88-44b5-85fa-d6051a5d155b",
+        "display_name": "Admin",
+        "role": "admin",
+        "email": null,
+        "avatar_url": null,
+        "username": "admin",
+        "username_display": "admin",
+        "providers": [
+          "local"
+        ],
+        "musicbrainz_source": {
+          "source_mode": "brainzmash",
+          "source_id": "4734d9ba-a93b-40ce-8020-c3d92c61d2c3",
+          "generation": 1
+        }
+      }
+    },
+    "/library/artists/reconciliation": {
+      "status": 200,
+      "body": {
+        "state": "succeeded",
+        "completed_count": 0,
+        "expected_count": 0,
+        "automatically_resolved_count": 0,
+        "waiting_for_identity_count": 0,
+        "genuine_review_count": 0,
+        "provider_conflict_count": 0,
+        "ambiguous_credit_structure_count": 0,
+        "same_name_only_count": 0,
+        "operation_job_id": "ba668ead-4ba0-4e24-9966-d90f5e76c251"
+      }
+    },
+    "/library/artists?limit=100&offset=0&scope=album": {
+      "status": 200,
+      "body": {
+        "items": [
+          {
+            "id": "fde1f8f7-391d-5eea-8576-88eafeb24475",
+            "name": "Conflict Name",
+            "musicbrainz_artist_id": null,
+            "artist_identity_state": "local_only",
+            "album_count": 1,
+            "track_count": 2,
+            "appearance_release_count": 0,
+            "appearance_track_count": 0,
+            "library_relationship": "album_artist",
+            "date_added": 1791521729.6766899,
+            "row_revision": 1
+          },
+          {
+            "id": "acc3eea1-0dda-5287-8e77-a9043b76ffaf",
+            "name": "Lonely Alias",
+            "musicbrainz_artist_id": null,
+            "artist_identity_state": "local_only",
+            "album_count": 1,
+            "track_count": 1,
+            "appearance_release_count": 0,
+            "appearance_track_count": 0,
+            "library_relationship": "album_artist",
+            "date_added": 1791521729.6794143,
+            "row_revision": 1
+          },
+          {
+            "id": "fec642d4-ffa6-588f-ba31-5af997e2680a",
+            "name": "Other Artist",
+            "musicbrainz_artist_id": null,
+            "artist_identity_state": "local_only",
+            "album_count": 1,
+            "track_count": 1,
+            "appearance_release_count": 0,
+            "appearance_track_count": 0,
+            "library_relationship": "album_artist",
+            "date_added": 1791521729.6804342,
+            "row_revision": 1
+          },
+          {
+            "id": "a8a4098f-d8fd-5921-82d5-87baa6aefb57",
+            "name": "Otonose Kanade",
+            "musicbrainz_artist_id": null,
+            "artist_identity_state": "local_only",
+            "album_count": 1,
+            "track_count": 3,
+            "appearance_release_count": 0,
+            "appearance_track_count": 0,
+            "library_relationship": "album_artist",
+            "date_added": 1791521729.6814177,
+            "row_revision": 1
+          },
+          {
+            "id": "7b29edce-65d4-5f8a-bf7e-0c9df11f39a6",
+            "name": "Some Band",
+            "musicbrainz_artist_id": null,
+            "artist_identity_state": "local_only",
+            "album_count": 1,
+            "track_count": 1,
+            "appearance_release_count": 0,
+            "appearance_track_count": 0,
+            "library_relationship": "album_artist",
+            "date_added": 1791521729.684395,
+            "row_revision": 1
+          },
+          {
+            "id": "eae66d5e-0631-5537-9af9-2e92c28e90bc",
+            "name": "音乃瀬奏",
+            "musicbrainz_artist_id": "11111111-1111-4111-8111-111111111111",
+            "artist_identity_state": "musicbrainz_linked",
+            "album_count": 1,
+            "track_count": 2,
+            "appearance_release_count": 0,
+            "appearance_track_count": 0,
+            "library_relationship": "album_artist",
+            "date_added": 1791521729.6852849,
+            "row_revision": 1
+          }
+        ],
+        "total": 6,
+        "album_artist_total": 6,
+        "contributor_total": 1
+      }
+    },
+    "/library/artists?limit=100&offset=0&scope=contributors": {
+      "status": 200,
+      "body": {
+        "items": [
+          {
+            "id": "a8a4098f-d8fd-5921-82d5-87baa6aefb57",
+            "name": "Otonose Kanade",
+            "musicbrainz_artist_id": null,
+            "artist_identity_state": "local_only",
+            "album_count": 0,
+            "track_count": 0,
+            "appearance_release_count": 1,
+            "appearance_track_count": 1,
+            "library_relationship": "contributor",
+            "date_added": 1791521729.6804342,
+            "row_revision": 1
+          }
+        ],
+        "total": 1,
+        "album_artist_total": 6,
+        "contributor_total": 1
+      }
+    },
+    "/library/artists/7b29edce-65d4-5f8a-bf7e-0c9df11f39a6": {
+      "status": 200,
+      "body": {
+        "id": "7b29edce-65d4-5f8a-bf7e-0c9df11f39a6",
+        "name": "Some Band",
+        "musicbrainz_artist_id": null,
+        "artist_identity_state": "local_only",
+        "album_count": 1,
+        "track_count": 1,
+        "appearance_release_count": 0,
+        "appearance_track_count": 0,
+        "library_relationship": "album_artist",
+        "date_added": 1791521729.684395,
+        "row_revision": 1
+      }
+    },
+    "/library/artists/7b29edce-65d4-5f8a-bf7e-0c9df11f39a6/albums": {
+      "status": 200,
+      "body": {
+        "items": [
+          {
+            "id": "186150db-38cb-5afd-a143-c3f06aca5c69",
+            "title": "Untagged",
+            "artist_name": "Some Band",
+            "artist_id": "7b29edce-65d4-5f8a-bf7e-0c9df11f39a6",
+            "musicbrainz_release_group_id": null,
+            "musicbrainz_release_id": null,
+            "musicbrainz_artist_id": null,
+            "album_identity_state": "local_only",
+            "track_count": 1,
+            "total_duration_seconds": 2.0,
+            "total_size_bytes": 8570,
+            "format": "flac",
+            "year": 2024,
+            "is_compilation": false,
+            "cover_available": false,
+            "date_added": 1791521729.684395,
+            "sort_name": null,
+            "original_release_date": null,
+            "contribution_id": null,
+            "contribution_state": null
+          }
+        ],
+        "total": 1
+      }
+    },
+    "/library/artists/7b29edce-65d4-5f8a-bf7e-0c9df11f39a6/appearances?limit=100&offset=0": {
+      "status": 200,
+      "body": {
+        "items": [],
+        "total": 0,
+        "total_tracks": 0,
+        "offset": 0,
+        "limit": 100
+      }
+    },
+    "/library/albums/186150db-38cb-5afd-a143-c3f06aca5c69/tracks": {
+      "status": 200,
+      "body": {
+        "items": [
+          {
+            "id": "dd482f4e-18a3-532f-8ce5-db10af286f40",
+            "title": "Plain",
+            "album_id": "186150db-38cb-5afd-a143-c3f06aca5c69",
+            "album_title": "Untagged",
+            "artist_id": "7b29edce-65d4-5f8a-bf7e-0c9df11f39a6",
+            "artist_name": "Some Band",
+            "album_artist_id": "7b29edce-65d4-5f8a-bf7e-0c9df11f39a6",
+            "album_artist_name": "Some Band",
+            "musicbrainz_recording_id": null,
+            "musicbrainz_release_group_id": null,
+            "musicbrainz_artist_id": null,
+            "musicbrainz_album_artist_id": null,
+            "disc_number": 1,
+            "track_number": 1,
+            "year": 2024,
+            "genre": null,
+            "duration_seconds": 2.0,
+            "format": "flac",
+            "bit_rate": 1,
+            "sample_rate": 44100,
+            "bit_depth": 16,
+            "channels": 2,
+            "file_size_bytes": 8570,
+            "date_added": 1791521729.684395,
+            "cover_available": false,
+            "current_tier": null,
+            "below_cutoff": false
+          }
+        ],
+        "total": 1,
+        "offset": 0,
+        "limit": 1
+      }
+    },
+    "/library/tracks/dd482f4e-18a3-532f-8ce5-db10af286f40/tags": {
+      "status": 200,
+      "body": {
+        "title": "Plain",
+        "artist": "Some Band",
+        "album": "Untagged",
+        "track_number": 1,
+        "album_artist": "Some Band",
+        "disc_number": 1,
+        "year": 2024,
+        "genre": null,
+        "musicbrainz_release_group_id": null,
+        "musicbrainz_release_id": null,
+        "musicbrainz_recording_id": null,
+        "musicbrainz_release_track_id": null,
+        "musicbrainz_artist_id": null,
+        "musicbrainz_album_artist_id": null,
+        "acoustid_id": null,
+        "compilation": false,
+        "release_type": null,
+        "title_sort": null,
+        "artist_sort": null,
+        "album_sort": null,
+        "album_artist_sort": null,
+        "disc_subtitle": null,
+        "original_release_date": null,
+        "replaygain_track_gain": null,
+        "replaygain_album_gain": null,
+        "replaygain_track_peak": null,
+        "replaygain_album_peak": null,
+        "genres": [],
+        "artists": [
+          {
+            "name": "Some Band",
+            "credited_name": "Some Band",
+            "sort_name": null,
+            "musicbrainz_artist_id": null,
+            "join_phrase": ""
+          }
+        ],
+        "album_artists": [
+          {
+            "name": "Some Band",
+            "credited_name": "Some Band",
+            "sort_name": null,
+            "musicbrainz_artist_id": null,
+            "join_phrase": ""
+          }
+        ],
+        "musicbrainz_artist_ids": [],
+        "musicbrainz_album_artist_ids": []
+      }
+    },
+    "/library/artists/a8a4098f-d8fd-5921-82d5-87baa6aefb57": {
+      "status": 200,
+      "body": {
+        "id": "a8a4098f-d8fd-5921-82d5-87baa6aefb57",
+        "name": "Otonose Kanade",
+        "musicbrainz_artist_id": null,
+        "artist_identity_state": "local_only",
+        "album_count": 1,
+        "track_count": 3,
+        "appearance_release_count": 1,
+        "appearance_track_count": 1,
+        "library_relationship": "both",
+        "date_added": 1791521729.6804342,
+        "row_revision": 1
+      }
+    },
+    "/library/artists/a8a4098f-d8fd-5921-82d5-87baa6aefb57/albums": {
+      "status": 200,
+      "body": {
+        "items": [
+          {
+            "id": "23b79ddb-e10d-5027-a382-9ce96f2ef7db",
+            "title": "Romanized Album",
+            "artist_name": "Otonose Kanade",
+            "artist_id": "a8a4098f-d8fd-5921-82d5-87baa6aefb57",
+            "musicbrainz_release_group_id": null,
+            "musicbrainz_release_id": null,
+            "musicbrainz_artist_id": null,
+            "album_identity_state": "local_only",
+            "track_count": 3,
+            "total_duration_seconds": 6.0,
+            "total_size_bytes": 25710,
+            "format": "flac",
+            "year": 2024,
+            "is_compilation": false,
+            "cover_available": false,
+            "date_added": 1791521729.683414,
+            "sort_name": null,
+            "original_release_date": null,
+            "contribution_id": null,
+            "contribution_state": null
+          }
+        ],
+        "total": 1
+      }
+    },
+    "/library/artists/a8a4098f-d8fd-5921-82d5-87baa6aefb57/appearances?limit=100&offset=0": {
+      "status": 200,
+      "body": {
+        "items": [
+          {
+            "album": {
+              "id": "e4cbae84-1177-51c2-a116-f654e2d1897f",
+              "title": "Collab Single",
+              "artist_name": "Other Artist",
+              "artist_id": "fec642d4-ffa6-588f-ba31-5af997e2680a",
+              "musicbrainz_release_group_id": null,
+              "musicbrainz_release_id": null,
+              "musicbrainz_artist_id": null,
+              "album_identity_state": "local_only",
+              "track_count": 1,
+              "total_duration_seconds": 2.0,
+              "total_size_bytes": 8570,
+              "format": "flac",
+              "year": 2024,
+              "is_compilation": false,
+              "cover_available": false,
+              "date_added": 1791521729.6804342,
+              "sort_name": null,
+              "original_release_date": null,
+              "contribution_id": null,
+              "contribution_state": null
+            },
+            "tracks": [
+              {
+                "id": "38b0df8e-9b5a-532a-99ff-7db15d4fac06",
+                "title": "Duet",
+                "album_id": "e4cbae84-1177-51c2-a116-f654e2d1897f",
+                "album_title": "Collab Single",
+                "artist_id": "fec642d4-ffa6-588f-ba31-5af997e2680a",
+                "artist_name": "Other Artist & Otonose Kanade",
+                "album_artist_id": "fec642d4-ffa6-588f-ba31-5af997e2680a",
+                "album_artist_name": "Other Artist",
+                "musicbrainz_recording_id": null,
+                "musicbrainz_release_group_id": null,
+                "musicbrainz_artist_id": null,
+                "musicbrainz_album_artist_id": null,
+                "disc_number": 1,
+                "track_number": 1,
+                "year": 2024,
+                "genre": null,
+                "duration_seconds": 2.0,
+                "format": "flac",
+                "bit_rate": 1,
+                "sample_rate": 44100,
+                "bit_depth": 16,
+                "channels": 2,
+                "file_size_bytes": 8570,
+                "date_added": 1791521729.6804342,
+                "cover_available": false,
+                "current_tier": null,
+                "below_cutoff": false
+              }
+            ]
+          }
+        ],
+        "total": 1,
+        "total_tracks": 1,
+        "offset": 0,
+        "limit": 100
+      }
+    },
+    "/library/albums/23b79ddb-e10d-5027-a382-9ce96f2ef7db/tracks": {
+      "status": 200,
+      "body": {
+        "items": [
+          {
+            "id": "3e5d06c1-409f-5fab-a37f-880b11eb40aa",
+            "title": "Song C",
+            "album_id": "23b79ddb-e10d-5027-a382-9ce96f2ef7db",
+            "album_title": "Romanized Album",
+            "artist_id": "a8a4098f-d8fd-5921-82d5-87baa6aefb57",
+            "artist_name": "Otonose Kanade",
+            "album_artist_id": "a8a4098f-d8fd-5921-82d5-87baa6aefb57",
+            "album_artist_name": "Otonose Kanade",
+            "musicbrainz_recording_id": null,
+            "musicbrainz_release_group_id": null,
+            "musicbrainz_artist_id": null,
+            "musicbrainz_album_artist_id": null,
+            "disc_number": 1,
+            "track_number": 1,
+            "year": 2024,
+            "genre": null,
+            "duration_seconds": 2.0,
+            "format": "flac",
+            "bit_rate": 1,
+            "sample_rate": 44100,
+            "bit_depth": 16,
+            "channels": 2,
+            "file_size_bytes": 8570,
+            "date_added": 1791521729.6814177,
+            "cover_available": false,
+            "current_tier": null,
+            "below_cutoff": false
+          },
+          {
+            "id": "9dd04489-8f7b-52ce-8fc3-75b85d2e978e",
+            "title": "Song D",
+            "album_id": "23b79ddb-e10d-5027-a382-9ce96f2ef7db",
+            "album_title": "Romanized Album",
+            "artist_id": "a8a4098f-d8fd-5921-82d5-87baa6aefb57",
+            "artist_name": "Otonose Kanade",
+            "album_artist_id": "a8a4098f-d8fd-5921-82d5-87baa6aefb57",
+            "album_artist_name": "Otonose Kanade",
+            "musicbrainz_recording_id": null,
+            "musicbrainz_release_group_id": null,
+            "musicbrainz_artist_id": null,
+            "musicbrainz_album_artist_id": null,
+            "disc_number": 1,
+            "track_number": 2,
+            "year": 2024,
+            "genre": null,
+            "duration_seconds": 2.0,
+            "format": "flac",
+            "bit_rate": 1,
+            "sample_rate": 44100,
+            "bit_depth": 16,
+            "channels": 2,
+            "file_size_bytes": 8570,
+            "date_added": 1791521729.682409,
+            "cover_available": false,
+            "current_tier": null,
+            "below_cutoff": false
+          },
+          {
+            "id": "e2de1064-f27a-55dd-8a39-29105ff82632",
+            "title": "Song E",
+            "album_id": "23b79ddb-e10d-5027-a382-9ce96f2ef7db",
+            "album_title": "Romanized Album",
+            "artist_id": "a8a4098f-d8fd-5921-82d5-87baa6aefb57",
+            "artist_name": "Otonose Kanade",
+            "album_artist_id": "a8a4098f-d8fd-5921-82d5-87baa6aefb57",
+            "album_artist_name": "Otonose Kanade",
+            "musicbrainz_recording_id": null,
+            "musicbrainz_release_group_id": null,
+            "musicbrainz_artist_id": null,
+            "musicbrainz_album_artist_id": null,
+            "disc_number": 1,
+            "track_number": 3,
+            "year": 2024,
+            "genre": null,
+            "duration_seconds": 2.0,
+            "format": "flac",
+            "bit_rate": 1,
+            "sample_rate": 44100,
+            "bit_depth": 16,
+            "channels": 2,
+            "file_size_bytes": 8570,
+            "date_added": 1791521729.683414,
+            "cover_available": false,
+            "current_tier": null,
+            "below_cutoff": false
+          }
+        ],
+        "total": 3,
+        "offset": 0,
+        "limit": 3
+      }
+    },
+    "/library/tracks/3e5d06c1-409f-5fab-a37f-880b11eb40aa/tags": {
+      "status": 200,
+      "body": {
+        "title": "Song C",
+        "artist": "Otonose Kanade",
+        "album": "Romanized Album",
+        "track_number": 1,
+        "album_artist": "Otonose Kanade",
+        "disc_number": 1,
+        "year": 2024,
+        "genre": null,
+        "musicbrainz_release_group_id": null,
+        "musicbrainz_release_id": null,
+        "musicbrainz_recording_id": null,
+        "musicbrainz_release_track_id": null,
+        "musicbrainz_artist_id": "11111111-1111-4111-8111-111111111111",
+        "musicbrainz_album_artist_id": "11111111-1111-4111-8111-111111111111",
+        "acoustid_id": null,
+        "compilation": false,
+        "release_type": null,
+        "title_sort": null,
+        "artist_sort": null,
+        "album_sort": null,
+        "album_artist_sort": null,
+        "disc_subtitle": null,
+        "original_release_date": null,
+        "replaygain_track_gain": null,
+        "replaygain_album_gain": null,
+        "replaygain_track_peak": null,
+        "replaygain_album_peak": null,
+        "genres": [],
+        "artists": [
+          {
+            "name": "Otonose Kanade",
+            "credited_name": "Otonose Kanade",
+            "sort_name": null,
+            "musicbrainz_artist_id": "11111111-1111-4111-8111-111111111111",
+            "join_phrase": ""
+          }
+        ],
+        "album_artists": [
+          {
+            "name": "Otonose Kanade",
+            "credited_name": "Otonose Kanade",
+            "sort_name": null,
+            "musicbrainz_artist_id": "11111111-1111-4111-8111-111111111111",
+            "join_phrase": ""
+          }
+        ],
+        "musicbrainz_artist_ids": [
+          "11111111-1111-4111-8111-111111111111"
+        ],
+        "musicbrainz_album_artist_ids": [
+          "11111111-1111-4111-8111-111111111111"
+        ]
+      }
+    },
+    "/library/tracks/9dd04489-8f7b-52ce-8fc3-75b85d2e978e/tags": {
+      "status": 200,
+      "body": {
+        "title": "Song D",
+        "artist": "Otonose Kanade",
+        "album": "Romanized Album",
+        "track_number": 2,
+        "album_artist": "Otonose Kanade",
+        "disc_number": 1,
+        "year": 2024,
+        "genre": null,
+        "musicbrainz_release_group_id": null,
+        "musicbrainz_release_id": null,
+        "musicbrainz_recording_id": null,
+        "musicbrainz_release_track_id": null,
+        "musicbrainz_artist_id": "11111111-1111-4111-8111-111111111111",
+        "musicbrainz_album_artist_id": "11111111-1111-4111-8111-111111111111",
+        "acoustid_id": null,
+        "compilation": false,
+        "release_type": null,
+        "title_sort": null,
+        "artist_sort": null,
+        "album_sort": null,
+        "album_artist_sort": null,
+        "disc_subtitle": null,
+        "original_release_date": null,
+        "replaygain_track_gain": null,
+        "replaygain_album_gain": null,
+        "replaygain_track_peak": null,
+        "replaygain_album_peak": null,
+        "genres": [],
+        "artists": [
+          {
+            "name": "Otonose Kanade",
+            "credited_name": "Otonose Kanade",
+            "sort_name": null,
+            "musicbrainz_artist_id": "11111111-1111-4111-8111-111111111111",
+            "join_phrase": ""
+          }
+        ],
+        "album_artists": [
+          {
+            "name": "Otonose Kanade",
+            "credited_name": "Otonose Kanade",
+            "sort_name": null,
+            "musicbrainz_artist_id": "11111111-1111-4111-8111-111111111111",
+            "join_phrase": ""
+          }
+        ],
+        "musicbrainz_artist_ids": [
+          "11111111-1111-4111-8111-111111111111"
+        ],
+        "musicbrainz_album_artist_ids": [
+          "11111111-1111-4111-8111-111111111111"
+        ]
+      }
+    },
+    "/library/tracks/e2de1064-f27a-55dd-8a39-29105ff82632/tags": {
+      "status": 200,
+      "body": {
+        "title": "Song E",
+        "artist": "Otonose Kanade",
+        "album": "Romanized Album",
+        "track_number": 3,
+        "album_artist": "Otonose Kanade",
+        "disc_number": 1,
+        "year": 2024,
+        "genre": null,
+        "musicbrainz_release_group_id": null,
+        "musicbrainz_release_id": null,
+        "musicbrainz_recording_id": null,
+        "musicbrainz_release_track_id": null,
+        "musicbrainz_artist_id": "11111111-1111-4111-8111-111111111111",
+        "musicbrainz_album_artist_id": "11111111-1111-4111-8111-111111111111",
+        "acoustid_id": null,
+        "compilation": false,
+        "release_type": null,
+        "title_sort": null,
+        "artist_sort": null,
+        "album_sort": null,
+        "album_artist_sort": null,
+        "disc_subtitle": null,
+        "original_release_date": null,
+        "replaygain_track_gain": null,
+        "replaygain_album_gain": null,
+        "replaygain_track_peak": null,
+        "replaygain_album_peak": null,
+        "genres": [],
+        "artists": [
+          {
+            "name": "Otonose Kanade",
+            "credited_name": "Otonose Kanade",
+            "sort_name": null,
+            "musicbrainz_artist_id": "11111111-1111-4111-8111-111111111111",
+            "join_phrase": ""
+          }
+        ],
+        "album_artists": [
+          {
+            "name": "Otonose Kanade",
+            "credited_name": "Otonose Kanade",
+            "sort_name": null,
+            "musicbrainz_artist_id": "11111111-1111-4111-8111-111111111111",
+            "join_phrase": ""
+          }
+        ],
+        "musicbrainz_artist_ids": [
+          "11111111-1111-4111-8111-111111111111"
+        ],
+        "musicbrainz_album_artist_ids": [
+          "11111111-1111-4111-8111-111111111111"
+        ]
+      }
+    },
+    "/library/albums/e4cbae84-1177-51c2-a116-f654e2d1897f/tracks": {
+      "status": 200,
+      "body": {
+        "items": [
+          {
+            "id": "38b0df8e-9b5a-532a-99ff-7db15d4fac06",
+            "title": "Duet",
+            "album_id": "e4cbae84-1177-51c2-a116-f654e2d1897f",
+            "album_title": "Collab Single",
+            "artist_id": "fec642d4-ffa6-588f-ba31-5af997e2680a",
+            "artist_name": "Other Artist & Otonose Kanade",
+            "album_artist_id": "fec642d4-ffa6-588f-ba31-5af997e2680a",
+            "album_artist_name": "Other Artist",
+            "musicbrainz_recording_id": null,
+            "musicbrainz_release_group_id": null,
+            "musicbrainz_artist_id": null,
+            "musicbrainz_album_artist_id": null,
+            "disc_number": 1,
+            "track_number": 1,
+            "year": 2024,
+            "genre": null,
+            "duration_seconds": 2.0,
+            "format": "flac",
+            "bit_rate": 1,
+            "sample_rate": 44100,
+            "bit_depth": 16,
+            "channels": 2,
+            "file_size_bytes": 8570,
+            "date_added": 1791521729.6804342,
+            "cover_available": false,
+            "current_tier": null,
+            "below_cutoff": false
+          }
+        ],
+        "total": 1,
+        "offset": 0,
+        "limit": 1
+      }
+    },
+    "/library/tracks/38b0df8e-9b5a-532a-99ff-7db15d4fac06/tags": {
+      "status": 200,
+      "body": {
+        "title": "Duet",
+        "artist": "Other Artist & Otonose Kanade",
+        "album": "Collab Single",
+        "track_number": 1,
+        "album_artist": "Other Artist",
+        "disc_number": 1,
+        "year": 2024,
+        "genre": null,
+        "musicbrainz_release_group_id": null,
+        "musicbrainz_release_id": null,
+        "musicbrainz_recording_id": null,
+        "musicbrainz_release_track_id": null,
+        "musicbrainz_artist_id": "22222222-2222-4222-8222-222222222222",
+        "musicbrainz_album_artist_id": "22222222-2222-4222-8222-222222222222",
+        "acoustid_id": null,
+        "compilation": false,
+        "release_type": null,
+        "title_sort": null,
+        "artist_sort": null,
+        "album_sort": null,
+        "album_artist_sort": null,
+        "disc_subtitle": null,
+        "original_release_date": null,
+        "replaygain_track_gain": null,
+        "replaygain_album_gain": null,
+        "replaygain_track_peak": null,
+        "replaygain_album_peak": null,
+        "genres": [],
+        "artists": [
+          {
+            "name": "Other Artist",
+            "credited_name": "Other Artist",
+            "sort_name": null,
+            "musicbrainz_artist_id": "22222222-2222-4222-8222-222222222222",
+            "join_phrase": ""
+          },
+          {
+            "name": "Otonose Kanade",
+            "credited_name": "Otonose Kanade",
+            "sort_name": null,
+            "musicbrainz_artist_id": "11111111-1111-4111-8111-111111111111",
+            "join_phrase": ""
+          }
+        ],
+        "album_artists": [
+          {
+            "name": "Other Artist",
+            "credited_name": "Other Artist",
+            "sort_name": null,
+            "musicbrainz_artist_id": "22222222-2222-4222-8222-222222222222",
+            "join_phrase": ""
+          }
+        ],
+        "musicbrainz_artist_ids": [
+          "22222222-2222-4222-8222-222222222222",
+          "11111111-1111-4111-8111-111111111111"
+        ],
+        "musicbrainz_album_artist_ids": [
+          "22222222-2222-4222-8222-222222222222"
+        ]
+      }
+    },
+    "/library/artists/acc3eea1-0dda-5287-8e77-a9043b76ffaf": {
+      "status": 200,
+      "body": {
+        "id": "acc3eea1-0dda-5287-8e77-a9043b76ffaf",
+        "name": "Lonely Alias",
+        "musicbrainz_artist_id": null,
+        "artist_identity_state": "local_only",
+        "album_count": 1,
+        "track_count": 1,
+        "appearance_release_count": 0,
+        "appearance_track_count": 0,
+        "library_relationship": "album_artist",
+        "date_added": 1791521729.6794143,
+        "row_revision": 1
+      }
+    },
+    "/library/artists/acc3eea1-0dda-5287-8e77-a9043b76ffaf/albums": {
+      "status": 200,
+      "body": {
+        "items": [
+          {
+            "id": "ed5d94bb-e233-5e4b-aaa6-8c9a676e3451",
+            "title": "Lonely Album",
+            "artist_name": "Lonely Alias",
+            "artist_id": "acc3eea1-0dda-5287-8e77-a9043b76ffaf",
+            "musicbrainz_release_group_id": null,
+            "musicbrainz_release_id": null,
+            "musicbrainz_artist_id": null,
+            "album_identity_state": "local_only",
+            "track_count": 1,
+            "total_duration_seconds": 2.0,
+            "total_size_bytes": 8570,
+            "format": "flac",
+            "year": 2024,
+            "is_compilation": false,
+            "cover_available": false,
+            "date_added": 1791521729.6794143,
+            "sort_name": null,
+            "original_release_date": null,
+            "contribution_id": null,
+            "contribution_state": null
+          }
+        ],
+        "total": 1
+      }
+    },
+    "/library/artists/acc3eea1-0dda-5287-8e77-a9043b76ffaf/appearances?limit=100&offset=0": {
+      "status": 200,
+      "body": {
+        "items": [],
+        "total": 0,
+        "total_tracks": 0,
+        "offset": 0,
+        "limit": 100
+      }
+    },
+    "/library/albums/ed5d94bb-e233-5e4b-aaa6-8c9a676e3451/tracks": {
+      "status": 200,
+      "body": {
+        "items": [
+          {
+            "id": "14eaedad-fe65-5fcf-a9d4-27d7a218d11d",
+            "title": "L1",
+            "album_id": "ed5d94bb-e233-5e4b-aaa6-8c9a676e3451",
+            "album_title": "Lonely Album",
+            "artist_id": "acc3eea1-0dda-5287-8e77-a9043b76ffaf",
+            "artist_name": "Lonely Alias",
+            "album_artist_id": "acc3eea1-0dda-5287-8e77-a9043b76ffaf",
+            "album_artist_name": "Lonely Alias",
+            "musicbrainz_recording_id": null,
+            "musicbrainz_release_group_id": null,
+            "musicbrainz_artist_id": null,
+            "musicbrainz_album_artist_id": null,
+            "disc_number": 1,
+            "track_number": 1,
+            "year": 2024,
+            "genre": null,
+            "duration_seconds": 2.0,
+            "format": "flac",
+            "bit_rate": 1,
+            "sample_rate": 44100,
+            "bit_depth": 16,
+            "channels": 2,
+            "file_size_bytes": 8570,
+            "date_added": 1791521729.6794143,
+            "cover_available": false,
+            "current_tier": null,
+            "below_cutoff": false
+          }
+        ],
+        "total": 1,
+        "offset": 0,
+        "limit": 1
+      }
+    },
+    "/library/tracks/14eaedad-fe65-5fcf-a9d4-27d7a218d11d/tags": {
+      "status": 200,
+      "body": {
+        "title": "L1",
+        "artist": "Lonely Alias",
+        "album": "Lonely Album",
+        "track_number": 1,
+        "album_artist": "Lonely Alias",
+        "disc_number": 1,
+        "year": 2024,
+        "genre": null,
+        "musicbrainz_release_group_id": null,
+        "musicbrainz_release_id": null,
+        "musicbrainz_recording_id": null,
+        "musicbrainz_release_track_id": null,
+        "musicbrainz_artist_id": "55555555-5555-4555-8555-555555555555",
+        "musicbrainz_album_artist_id": "55555555-5555-4555-8555-555555555555",
+        "acoustid_id": null,
+        "compilation": false,
+        "release_type": null,
+        "title_sort": null,
+        "artist_sort": null,
+        "album_sort": null,
+        "album_artist_sort": null,
+        "disc_subtitle": null,
+        "original_release_date": null,
+        "replaygain_track_gain": null,
+        "replaygain_album_gain": null,
+        "replaygain_track_peak": null,
+        "replaygain_album_peak": null,
+        "genres": [],
+        "artists": [
+          {
+            "name": "Lonely Alias",
+            "credited_name": "Lonely Alias",
+            "sort_name": null,
+            "musicbrainz_artist_id": "55555555-5555-4555-8555-555555555555",
+            "join_phrase": ""
+          }
+        ],
+        "album_artists": [
+          {
+            "name": "Lonely Alias",
+            "credited_name": "Lonely Alias",
+            "sort_name": null,
+            "musicbrainz_artist_id": "55555555-5555-4555-8555-555555555555",
+            "join_phrase": ""
+          }
+        ],
+        "musicbrainz_artist_ids": [
+          "55555555-5555-4555-8555-555555555555"
+        ],
+        "musicbrainz_album_artist_ids": [
+          "55555555-5555-4555-8555-555555555555"
+        ]
+      }
+    },
+    "/library/artists/eae66d5e-0631-5537-9af9-2e92c28e90bc": {
+      "status": 200,
+      "body": {
+        "id": "eae66d5e-0631-5537-9af9-2e92c28e90bc",
+        "name": "音乃瀬奏",
+        "musicbrainz_artist_id": "11111111-1111-4111-8111-111111111111",
+        "artist_identity_state": "musicbrainz_linked",
+        "album_count": 1,
+        "track_count": 2,
+        "appearance_release_count": 0,
+        "appearance_track_count": 0,
+        "library_relationship": "album_artist",
+        "date_added": 1791521729.6852849,
+        "row_revision": 1
+      }
+    },
+    "/library/artists/eae66d5e-0631-5537-9af9-2e92c28e90bc/albums": {
+      "status": 200,
+      "body": {
+        "items": [
+          {
+            "id": "ee131dba-c817-5d4f-9cd6-78c7e86d099c",
+            "title": "Canonical Album",
+            "artist_name": "音乃瀬奏",
+            "artist_id": "eae66d5e-0631-5537-9af9-2e92c28e90bc",
+            "musicbrainz_release_group_id": null,
+            "musicbrainz_release_id": null,
+            "musicbrainz_artist_id": "11111111-1111-4111-8111-111111111111",
+            "album_identity_state": "local_only",
+            "track_count": 2,
+            "total_duration_seconds": 4.0,
+            "total_size_bytes": 17140,
+            "format": "flac",
+            "year": 2024,
+            "is_compilation": false,
+            "cover_available": false,
+            "date_added": 1791521729.6863124,
+            "sort_name": null,
+            "original_release_date": null,
+            "contribution_id": null,
+            "contribution_state": null
+          }
+        ],
+        "total": 1
+      }
+    },
+    "/library/artists/eae66d5e-0631-5537-9af9-2e92c28e90bc/appearances?limit=100&offset=0": {
+      "status": 200,
+      "body": {
+        "items": [],
+        "total": 0,
+        "total_tracks": 0,
+        "offset": 0,
+        "limit": 100
+      }
+    },
+    "/library/albums/ee131dba-c817-5d4f-9cd6-78c7e86d099c/tracks": {
+      "status": 200,
+      "body": {
+        "items": [
+          {
+            "id": "ab60f367-0078-5dbb-8be5-c1716ba93915",
+            "title": "Song A",
+            "album_id": "ee131dba-c817-5d4f-9cd6-78c7e86d099c",
+            "album_title": "Canonical Album",
+            "artist_id": "eae66d5e-0631-5537-9af9-2e92c28e90bc",
+            "artist_name": "音乃瀬奏",
+            "album_artist_id": "eae66d5e-0631-5537-9af9-2e92c28e90bc",
+            "album_artist_name": "音乃瀬奏",
+            "musicbrainz_recording_id": null,
+            "musicbrainz_release_group_id": null,
+            "musicbrainz_artist_id": "11111111-1111-4111-8111-111111111111",
+            "musicbrainz_album_artist_id": "11111111-1111-4111-8111-111111111111",
+            "disc_number": 1,
+            "track_number": 1,
+            "year": 2024,
+            "genre": null,
+            "duration_seconds": 2.0,
+            "format": "flac",
+            "bit_rate": 1,
+            "sample_rate": 44100,
+            "bit_depth": 16,
+            "channels": 2,
+            "file_size_bytes": 8570,
+            "date_added": 1791521729.6852849,
+            "cover_available": false,
+            "current_tier": null,
+            "below_cutoff": false
+          },
+          {
+            "id": "b851a014-e338-5631-b80c-f78c3adb712c",
+            "title": "Song B",
+            "album_id": "ee131dba-c817-5d4f-9cd6-78c7e86d099c",
+            "album_title": "Canonical Album",
+            "artist_id": "eae66d5e-0631-5537-9af9-2e92c28e90bc",
+            "artist_name": "音乃瀬奏",
+            "album_artist_id": "eae66d5e-0631-5537-9af9-2e92c28e90bc",
+            "album_artist_name": "音乃瀬奏",
+            "musicbrainz_recording_id": null,
+            "musicbrainz_release_group_id": null,
+            "musicbrainz_artist_id": "11111111-1111-4111-8111-111111111111",
+            "musicbrainz_album_artist_id": "11111111-1111-4111-8111-111111111111",
+            "disc_number": 1,
+            "track_number": 2,
+            "year": 2024,
+            "genre": null,
+            "duration_seconds": 2.0,
+            "format": "flac",
+            "bit_rate": 1,
+            "sample_rate": 44100,
+            "bit_depth": 16,
+            "channels": 2,
+            "file_size_bytes": 8570,
+            "date_added": 1791521729.6863124,
+            "cover_available": false,
+            "current_tier": null,
+            "below_cutoff": false
+          }
+        ],
+        "total": 2,
+        "offset": 0,
+        "limit": 2
+      }
+    },
+    "/library/tracks/ab60f367-0078-5dbb-8be5-c1716ba93915/tags": {
+      "status": 200,
+      "body": {
+        "title": "Song A",
+        "artist": "音乃瀬奏",
+        "album": "Canonical Album",
+        "track_number": 1,
+        "album_artist": "音乃瀬奏",
+        "disc_number": 1,
+        "year": 2024,
+        "genre": null,
+        "musicbrainz_release_group_id": null,
+        "musicbrainz_release_id": null,
+        "musicbrainz_recording_id": null,
+        "musicbrainz_release_track_id": null,
+        "musicbrainz_artist_id": "11111111-1111-4111-8111-111111111111",
+        "musicbrainz_album_artist_id": "11111111-1111-4111-8111-111111111111",
+        "acoustid_id": null,
+        "compilation": false,
+        "release_type": null,
+        "title_sort": null,
+        "artist_sort": null,
+        "album_sort": null,
+        "album_artist_sort": null,
+        "disc_subtitle": null,
+        "original_release_date": null,
+        "replaygain_track_gain": null,
+        "replaygain_album_gain": null,
+        "replaygain_track_peak": null,
+        "replaygain_album_peak": null,
+        "genres": [],
+        "artists": [
+          {
+            "name": "音乃瀬奏",
+            "credited_name": "音乃瀬奏",
+            "sort_name": null,
+            "musicbrainz_artist_id": "11111111-1111-4111-8111-111111111111",
+            "join_phrase": ""
+          }
+        ],
+        "album_artists": [
+          {
+            "name": "音乃瀬奏",
+            "credited_name": "音乃瀬奏",
+            "sort_name": null,
+            "musicbrainz_artist_id": "11111111-1111-4111-8111-111111111111",
+            "join_phrase": ""
+          }
+        ],
+        "musicbrainz_artist_ids": [
+          "11111111-1111-4111-8111-111111111111"
+        ],
+        "musicbrainz_album_artist_ids": [
+          "11111111-1111-4111-8111-111111111111"
+        ]
+      }
+    },
+    "/library/tracks/b851a014-e338-5631-b80c-f78c3adb712c/tags": {
+      "status": 200,
+      "body": {
+        "title": "Song B",
+        "artist": "音乃瀬奏",
+        "album": "Canonical Album",
+        "track_number": 2,
+        "album_artist": "音乃瀬奏",
+        "disc_number": 1,
+        "year": 2024,
+        "genre": null,
+        "musicbrainz_release_group_id": null,
+        "musicbrainz_release_id": null,
+        "musicbrainz_recording_id": null,
+        "musicbrainz_release_track_id": null,
+        "musicbrainz_artist_id": "11111111-1111-4111-8111-111111111111",
+        "musicbrainz_album_artist_id": "11111111-1111-4111-8111-111111111111",
+        "acoustid_id": null,
+        "compilation": false,
+        "release_type": null,
+        "title_sort": null,
+        "artist_sort": null,
+        "album_sort": null,
+        "album_artist_sort": null,
+        "disc_subtitle": null,
+        "original_release_date": null,
+        "replaygain_track_gain": null,
+        "replaygain_album_gain": null,
+        "replaygain_track_peak": null,
+        "replaygain_album_peak": null,
+        "genres": [],
+        "artists": [
+          {
+            "name": "音乃瀬奏",
+            "credited_name": "音乃瀬奏",
+            "sort_name": null,
+            "musicbrainz_artist_id": "11111111-1111-4111-8111-111111111111",
+            "join_phrase": ""
+          }
+        ],
+        "album_artists": [
+          {
+            "name": "音乃瀬奏",
+            "credited_name": "音乃瀬奏",
+            "sort_name": null,
+            "musicbrainz_artist_id": "11111111-1111-4111-8111-111111111111",
+            "join_phrase": ""
+          }
+        ],
+        "musicbrainz_artist_ids": [
+          "11111111-1111-4111-8111-111111111111"
+        ],
+        "musicbrainz_album_artist_ids": [
+          "11111111-1111-4111-8111-111111111111"
+        ]
+      }
+    },
+    "/library/artists/fde1f8f7-391d-5eea-8576-88eafeb24475": {
+      "status": 200,
+      "body": {
+        "id": "fde1f8f7-391d-5eea-8576-88eafeb24475",
+        "name": "Conflict Name",
+        "musicbrainz_artist_id": null,
+        "artist_identity_state": "local_only",
+        "album_count": 1,
+        "track_count": 2,
+        "appearance_release_count": 0,
+        "appearance_track_count": 0,
+        "library_relationship": "album_artist",
+        "date_added": 1791521729.6766899,
+        "row_revision": 1
+      }
+    },
+    "/library/artists/fde1f8f7-391d-5eea-8576-88eafeb24475/albums": {
+      "status": 200,
+      "body": {
+        "items": [
+          {
+            "id": "4b354116-c43a-593a-b35a-9e7d3e4daf98",
+            "title": "Conflict Album",
+            "artist_name": "Conflict Name",
+            "artist_id": "fde1f8f7-391d-5eea-8576-88eafeb24475",
+            "musicbrainz_release_group_id": null,
+            "musicbrainz_release_id": null,
+            "musicbrainz_artist_id": null,
+            "album_identity_state": "local_only",
+            "track_count": 2,
+            "total_duration_seconds": 4.0,
+            "total_size_bytes": 17140,
+            "format": "flac",
+            "year": 2024,
+            "is_compilation": false,
+            "cover_available": false,
+            "date_added": 1791521729.678188,
+            "sort_name": null,
+            "original_release_date": null,
+            "contribution_id": null,
+            "contribution_state": null
+          }
+        ],
+        "total": 1
+      }
+    },
+    "/library/artists/fde1f8f7-391d-5eea-8576-88eafeb24475/appearances?limit=100&offset=0": {
+      "status": 200,
+      "body": {
+        "items": [],
+        "total": 0,
+        "total_tracks": 0,
+        "offset": 0,
+        "limit": 100
+      }
+    },
+    "/library/albums/4b354116-c43a-593a-b35a-9e7d3e4daf98/tracks": {
+      "status": 200,
+      "body": {
+        "items": [
+          {
+            "id": "cbeb8994-9c25-5015-967a-dc1e2ed06c39",
+            "title": "X1",
+            "album_id": "4b354116-c43a-593a-b35a-9e7d3e4daf98",
+            "album_title": "Conflict Album",
+            "artist_id": "fde1f8f7-391d-5eea-8576-88eafeb24475",
+            "artist_name": "Conflict Name",
+            "album_artist_id": "fde1f8f7-391d-5eea-8576-88eafeb24475",
+            "album_artist_name": "Conflict Name",
+            "musicbrainz_recording_id": null,
+            "musicbrainz_release_group_id": null,
+            "musicbrainz_artist_id": null,
+            "musicbrainz_album_artist_id": null,
+            "disc_number": 1,
+            "track_number": 1,
+            "year": 2024,
+            "genre": null,
+            "duration_seconds": 2.0,
+            "format": "flac",
+            "bit_rate": 1,
+            "sample_rate": 44100,
+            "bit_depth": 16,
+            "channels": 2,
+            "file_size_bytes": 8570,
+            "date_added": 1791521729.6766899,
+            "cover_available": false,
+            "current_tier": null,
+            "below_cutoff": false
+          },
+          {
+            "id": "92e4ee1b-1a34-59cc-937b-45b6e0959cc5",
+            "title": "X2",
+            "album_id": "4b354116-c43a-593a-b35a-9e7d3e4daf98",
+            "album_title": "Conflict Album",
+            "artist_id": "fde1f8f7-391d-5eea-8576-88eafeb24475",
+            "artist_name": "Conflict Name",
+            "album_artist_id": "fde1f8f7-391d-5eea-8576-88eafeb24475",
+            "album_artist_name": "Conflict Name",
+            "musicbrainz_recording_id": null,
+            "musicbrainz_release_group_id": null,
+            "musicbrainz_artist_id": null,
+            "musicbrainz_album_artist_id": null,
+            "disc_number": 1,
+            "track_number": 2,
+            "year": 2024,
+            "genre": null,
+            "duration_seconds": 2.0,
+            "format": "flac",
+            "bit_rate": 1,
+            "sample_rate": 44100,
+            "bit_depth": 16,
+            "channels": 2,
+            "file_size_bytes": 8570,
+            "date_added": 1791521729.678188,
+            "cover_available": false,
+            "current_tier": null,
+            "below_cutoff": false
+          }
+        ],
+        "total": 2,
+        "offset": 0,
+        "limit": 2
+      }
+    },
+    "/library/tracks/cbeb8994-9c25-5015-967a-dc1e2ed06c39/tags": {
+      "status": 200,
+      "body": {
+        "title": "X1",
+        "artist": "Conflict Name",
+        "album": "Conflict Album",
+        "track_number": 1,
+        "album_artist": "Conflict Name",
+        "disc_number": 1,
+        "year": 2024,
+        "genre": null,
+        "musicbrainz_release_group_id": null,
+        "musicbrainz_release_id": null,
+        "musicbrainz_recording_id": null,
+        "musicbrainz_release_track_id": null,
+        "musicbrainz_artist_id": "33333333-3333-4333-8333-333333333333",
+        "musicbrainz_album_artist_id": null,
+        "acoustid_id": null,
+        "compilation": false,
+        "release_type": null,
+        "title_sort": null,
+        "artist_sort": null,
+        "album_sort": null,
+        "album_artist_sort": null,
+        "disc_subtitle": null,
+        "original_release_date": null,
+        "replaygain_track_gain": null,
+        "replaygain_album_gain": null,
+        "replaygain_track_peak": null,
+        "replaygain_album_peak": null,
+        "genres": [],
+        "artists": [
+          {
+            "name": "Conflict Name",
+            "credited_name": "Conflict Name",
+            "sort_name": null,
+            "musicbrainz_artist_id": "33333333-3333-4333-8333-333333333333",
+            "join_phrase": ""
+          }
+        ],
+        "album_artists": [
+          {
+            "name": "Conflict Name",
+            "credited_name": "Conflict Name",
+            "sort_name": null,
+            "musicbrainz_artist_id": null,
+            "join_phrase": ""
+          }
+        ],
+        "musicbrainz_artist_ids": [
+          "33333333-3333-4333-8333-333333333333"
+        ],
+        "musicbrainz_album_artist_ids": []
+      }
+    },
+    "/library/tracks/92e4ee1b-1a34-59cc-937b-45b6e0959cc5/tags": {
+      "status": 200,
+      "body": {
+        "title": "X2",
+        "artist": "Conflict Name",
+        "album": "Conflict Album",
+        "track_number": 2,
+        "album_artist": "Conflict Name",
+        "disc_number": 1,
+        "year": 2024,
+        "genre": null,
+        "musicbrainz_release_group_id": null,
+        "musicbrainz_release_id": null,
+        "musicbrainz_recording_id": null,
+        "musicbrainz_release_track_id": null,
+        "musicbrainz_artist_id": "44444444-4444-4444-8444-444444444444",
+        "musicbrainz_album_artist_id": null,
+        "acoustid_id": null,
+        "compilation": false,
+        "release_type": null,
+        "title_sort": null,
+        "artist_sort": null,
+        "album_sort": null,
+        "album_artist_sort": null,
+        "disc_subtitle": null,
+        "original_release_date": null,
+        "replaygain_track_gain": null,
+        "replaygain_album_gain": null,
+        "replaygain_track_peak": null,
+        "replaygain_album_peak": null,
+        "genres": [],
+        "artists": [
+          {
+            "name": "Conflict Name",
+            "credited_name": "Conflict Name",
+            "sort_name": null,
+            "musicbrainz_artist_id": "44444444-4444-4444-8444-444444444444",
+            "join_phrase": ""
+          }
+        ],
+        "album_artists": [
+          {
+            "name": "Conflict Name",
+            "credited_name": "Conflict Name",
+            "sort_name": null,
+            "musicbrainz_artist_id": null,
+            "join_phrase": ""
+          }
+        ],
+        "musicbrainz_artist_ids": [
+          "44444444-4444-4444-8444-444444444444"
+        ],
+        "musicbrainz_album_artist_ids": []
+      }
+    },
+    "/library/artists/fec642d4-ffa6-588f-ba31-5af997e2680a": {
+      "status": 200,
+      "body": {
+        "id": "fec642d4-ffa6-588f-ba31-5af997e2680a",
+        "name": "Other Artist",
+        "musicbrainz_artist_id": null,
+        "artist_identity_state": "local_only",
+        "album_count": 1,
+        "track_count": 1,
+        "appearance_release_count": 0,
+        "appearance_track_count": 0,
+        "library_relationship": "album_artist",
+        "date_added": 1791521729.6804342,
+        "row_revision": 1
+      }
+    },
+    "/library/artists/fec642d4-ffa6-588f-ba31-5af997e2680a/albums": {
+      "status": 200,
+      "body": {
+        "items": [
+          {
+            "id": "e4cbae84-1177-51c2-a116-f654e2d1897f",
+            "title": "Collab Single",
+            "artist_name": "Other Artist",
+            "artist_id": "fec642d4-ffa6-588f-ba31-5af997e2680a",
+            "musicbrainz_release_group_id": null,
+            "musicbrainz_release_id": null,
+            "musicbrainz_artist_id": null,
+            "album_identity_state": "local_only",
+            "track_count": 1,
+            "total_duration_seconds": 2.0,
+            "total_size_bytes": 8570,
+            "format": "flac",
+            "year": 2024,
+            "is_compilation": false,
+            "cover_available": false,
+            "date_added": 1791521729.6804342,
+            "sort_name": null,
+            "original_release_date": null,
+            "contribution_id": null,
+            "contribution_state": null
+          }
+        ],
+        "total": 1
+      }
+    },
+    "/library/artists/fec642d4-ffa6-588f-ba31-5af997e2680a/appearances?limit=100&offset=0": {
+      "status": 200,
+      "body": {
+        "items": [],
+        "total": 0,
+        "total_tracks": 0,
+        "offset": 0,
+        "limit": 100
+      }
+    }
+  }
+}

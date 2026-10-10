@@ -1,0 +1,32 @@
+{
+  "request": "GET /api/v1/library/artists/a8a4098f-d8fd-5921-82d5-87baa6aefb57/albums",
+  "status": 200,
+  "note": "",
+  "body": {
+    "items": [
+      {
+        "id": "23b79ddb-e10d-5027-a382-9ce96f2ef7db",
+        "title": "Romanized Album",
+        "artist_name": "Otonose Kanade",
+        "artist_id": "a8a4098f-d8fd-5921-82d5-87baa6aefb57",
+        "musicbrainz_release_group_id": null,
+        "musicbrainz_release_id": null,
+        "musicbrainz_artist_id": null,
+        "album_identity_state": "local_only",
+        "track_count": 3,
+        "total_duration_seconds": 6.0,
+        "total_size_bytes": 25710,
+        "format": "flac",
+        "year": 2024,
+        "is_compilation": false,
+        "cover_available": false,
+        "date_added": 1791521729.683414,
+        "sort_name": null,
+        "original_release_date": null,
+        "contribution_id": null,
+        "contribution_state": null
+      }
+    ],
+    "total": 1
+  }
+}

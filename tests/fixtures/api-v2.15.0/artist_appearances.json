@@ -1,0 +1,68 @@
+{
+  "request": "GET /api/v1/library/artists/a8a4098f-d8fd-5921-82d5-87baa6aefb57/appearances?limit=100&offset=0",
+  "status": 200,
+  "note": "",
+  "body": {
+    "items": [
+      {
+        "album": {
+          "id": "e4cbae84-1177-51c2-a116-f654e2d1897f",
+          "title": "Collab Single",
+          "artist_name": "Other Artist",
+          "artist_id": "fec642d4-ffa6-588f-ba31-5af997e2680a",
+          "musicbrainz_release_group_id": null,
+          "musicbrainz_release_id": null,
+          "musicbrainz_artist_id": null,
+          "album_identity_state": "local_only",
+          "track_count": 1,
+          "total_duration_seconds": 2.0,
+          "total_size_bytes": 8570,
+          "format": "flac",
+          "year": 2024,
+          "is_compilation": false,
+          "cover_available": false,
+          "date_added": 1791521729.6804342,
+          "sort_name": null,
+          "original_release_date": null,
+          "contribution_id": null,
+          "contribution_state": null
+        },
+        "tracks": [
+          {
+            "id": "38b0df8e-9b5a-532a-99ff-7db15d4fac06",
+            "title": "Duet",
+            "album_id": "e4cbae84-1177-51c2-a116-f654e2d1897f",
+            "album_title": "Collab Single",
+            "artist_id": "fec642d4-ffa6-588f-ba31-5af997e2680a",
+            "artist_name": "Other Artist & Otonose Kanade",
+            "album_artist_id": "fec642d4-ffa6-588f-ba31-5af997e2680a",
+            "album_artist_name": "Other Artist",
+            "musicbrainz_recording_id": null,
+            "musicbrainz_release_group_id": null,
+            "musicbrainz_artist_id": null,
+            "musicbrainz_album_artist_id": null,
+            "disc_number": 1,
+            "track_number": 1,
+            "year": 2024,
+            "genre": null,
+            "duration_seconds": 2.0,
+            "format": "flac",
+            "bit_rate": 1,
+            "sample_rate": 44100,
+            "bit_depth": 16,
+            "channels": 2,
+            "file_size_bytes": 8570,
+            "date_added": 1791521729.6804342,
+            "cover_available": false,
+            "current_tier": null,
+            "below_cutoff": false
+          }
+        ]
+      }
+    ],
+    "total": 1,
+    "total_tracks": 1,
+    "offset": 0,
+    "limit": 100
+  }
+}

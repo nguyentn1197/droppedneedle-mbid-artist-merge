@@ -1,0 +1,29 @@
+{
+  "request": "POST /api/v1/library/artists/merge",
+  "status": 200,
+  "note": "",
+  "body": {
+    "kind": "merge_artist",
+    "track_ids": [],
+    "source_album_ids": [],
+    "target_album_id": null,
+    "surviving_artist_id": "eae66d5e-0631-5537-9af9-2e92c28e90bc",
+    "retired_artist_ids": [
+      "a8a4098f-d8fd-5921-82d5-87baa6aefb57"
+    ],
+    "catalog_revision": 10
+  },
+  "request_body": {
+    "source_artist_ids": [
+      "a8a4098f-d8fd-5921-82d5-87baa6aefb57"
+    ],
+    "surviving_artist_id": "eae66d5e-0631-5537-9af9-2e92c28e90bc",
+    "expected_revisions": {
+      "a8a4098f-d8fd-5921-82d5-87baa6aefb57": 1,
+      "eae66d5e-0631-5537-9af9-2e92c28e90bc": 1
+    },
+    "preview_token": "1791521742.2a7c272731a38720f5e17cb169dd7bb268cc8444313e63e3b3d32853ebd29a02",
+    "idempotency_key": "mbid-artist-merge:capture:1",
+    "provider_choice": "retain_survivor"
+  }
+}

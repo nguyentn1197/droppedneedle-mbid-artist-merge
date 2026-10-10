@@ -1,0 +1,22 @@
+{
+  "request": "POST /api/v1/library/artists/merge-preview",
+  "status": 403,
+  "note": "non-admin user",
+  "body": {
+    "error": {
+      "code": "FORBIDDEN",
+      "message": "Admin access required",
+      "details": null
+    }
+  },
+  "request_body": {
+    "source_artist_ids": [
+      "a"
+    ],
+    "surviving_artist_id": "b",
+    "expected_revisions": {
+      "a": 1,
+      "b": 1
+    }
+  }
+}

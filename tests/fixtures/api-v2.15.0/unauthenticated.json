@@ -1,0 +1,12 @@
+{
+  "request": "GET /api/v1/library/artists",
+  "status": 401,
+  "note": "no bearer token and no session cookie",
+  "body": {
+    "error": {
+      "code": "UNAUTHORIZED",
+      "message": "Not authenticated",
+      "details": null
+    }
+  }
+}

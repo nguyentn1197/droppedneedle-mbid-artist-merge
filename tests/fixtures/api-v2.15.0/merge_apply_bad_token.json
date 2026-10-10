@@ -1,0 +1,25 @@
+{
+  "request": "POST /api/v1/library/artists/merge",
+  "status": 409,
+  "note": "",
+  "body": {
+    "error": {
+      "code": "STALE_REVISION",
+      "message": "The catalog preview expired. Preview the change again.",
+      "details": null
+    }
+  },
+  "request_body": {
+    "source_artist_ids": [
+      "a8a4098f-d8fd-5921-82d5-87baa6aefb57"
+    ],
+    "surviving_artist_id": "eae66d5e-0631-5537-9af9-2e92c28e90bc",
+    "expected_revisions": {
+      "a8a4098f-d8fd-5921-82d5-87baa6aefb57": 1,
+      "eae66d5e-0631-5537-9af9-2e92c28e90bc": 1
+    },
+    "preview_token": "123.deadbeef",
+    "idempotency_key": "capture-bad-token",
+    "provider_choice": "retain_survivor"
+  }
+}

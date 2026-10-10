@@ -1,0 +1,17 @@
+{
+  "request": "GET /api/v1/library/artists/reconciliation",
+  "status": 200,
+  "note": "",
+  "body": {
+    "state": "succeeded",
+    "completed_count": 0,
+    "expected_count": 0,
+    "automatically_resolved_count": 0,
+    "waiting_for_identity_count": 0,
+    "genuine_review_count": 0,
+    "provider_conflict_count": 0,
+    "ambiguous_credit_structure_count": 0,
+    "same_name_only_count": 0,
+    "operation_job_id": "ba668ead-4ba0-4e24-9966-d90f5e76c251"
+  }
+}

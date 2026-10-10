@@ -1,0 +1,57 @@
+{
+  "request": "GET /api/v1/library/tracks/92e4ee1b-1a34-59cc-937b-45b6e0959cc5/tags",
+  "status": 200,
+  "note": "",
+  "body": {
+    "title": "X2",
+    "artist": "Conflict Name",
+    "album": "Conflict Album",
+    "track_number": 2,
+    "album_artist": "Conflict Name",
+    "disc_number": 1,
+    "year": 2024,
+    "genre": null,
+    "musicbrainz_release_group_id": null,
+    "musicbrainz_release_id": null,
+    "musicbrainz_recording_id": null,
+    "musicbrainz_release_track_id": null,
+    "musicbrainz_artist_id": "44444444-4444-4444-8444-444444444444",
+    "musicbrainz_album_artist_id": null,
+    "acoustid_id": null,
+    "compilation": false,
+    "release_type": null,
+    "title_sort": null,
+    "artist_sort": null,
+    "album_sort": null,
+    "album_artist_sort": null,
+    "disc_subtitle": null,
+    "original_release_date": null,
+    "replaygain_track_gain": null,
+    "replaygain_album_gain": null,
+    "replaygain_track_peak": null,
+    "replaygain_album_peak": null,
+    "genres": [],
+    "artists": [
+      {
+        "name": "Conflict Name",
+        "credited_name": "Conflict Name",
+        "sort_name": null,
+        "musicbrainz_artist_id": "44444444-4444-4444-8444-444444444444",
+        "join_phrase": ""
+      }
+    ],
+    "album_artists": [
+      {
+        "name": "Conflict Name",
+        "credited_name": "Conflict Name",
+        "sort_name": null,
+        "musicbrainz_artist_id": null,
+        "join_phrase": ""
+      }
+    ],
+    "musicbrainz_artist_ids": [
+      "44444444-4444-4444-8444-444444444444"
+    ],
+    "musicbrainz_album_artist_ids": []
+  }
+}

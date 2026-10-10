@@ -1,0 +1,12 @@
+{
+  "request": "GET /api/v1/library/tracks/3e5d06c1-409f-5fab-a37f-880b11eb40aa/tags",
+  "status": 403,
+  "note": "non-admin user",
+  "body": {
+    "error": {
+      "code": "FORBIDDEN",
+      "message": "Admin access required",
+      "details": null
+    }
+  }
+}

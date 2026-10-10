@@ -1,0 +1,25 @@
+{
+  "request": "GET /api/v1/library/artists?limit=100&offset=0&scope=contributors&sort_by=name",
+  "status": 200,
+  "note": "",
+  "body": {
+    "items": [
+      {
+        "id": "a8a4098f-d8fd-5921-82d5-87baa6aefb57",
+        "name": "Otonose Kanade",
+        "musicbrainz_artist_id": null,
+        "artist_identity_state": "local_only",
+        "album_count": 0,
+        "track_count": 0,
+        "appearance_release_count": 1,
+        "appearance_track_count": 1,
+        "library_relationship": "contributor",
+        "date_added": 1791521729.6804342,
+        "row_revision": 1
+      }
+    ],
+    "total": 1,
+    "album_artist_total": 6,
+    "contributor_total": 1
+  }
+}
