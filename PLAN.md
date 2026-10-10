@@ -109,6 +109,7 @@ plugin.toml                 manifest (§5)
 plugin.py                   v2 adapter: sys.path + module purge, class MbidArtistMerge
 mbid_artist_merge/
   __init__.py               __version__ (keep in sync with plugin.toml)
+  constants.py              reserved ids/MBIDs, MBID_RE, identity states (§7.1)
   config.py                 Settings dataclass + parse(dict[str,str]) with defaults/validation
   folding.py                fold(name): mirrors DroppedNeedle's _fold_value
   api.py                    DroppedNeedleApi: typed async calls over an injected HTTP client
@@ -270,7 +271,7 @@ Manifest rules to keep in mind:
 | Key | Type | Default | Rule |
 |---|---|---|---|
 | `base_url` | str | `http://127.0.0.1:8688` | must start with `http://` or `https://`; strip trailing `/` |
-| `username` / `password` | str | "" | used when `api_token` is empty; both required then |
+| `username` / `password` | str | "" | used when `api_token` is empty; both required then. The password is **not** trimmed (a password may start or end with a space) |
 | `api_token` | str | "" | if set, wins over username/password; never logged |
 | `dry_run` | bool | **true** | false only for `false`, `0`, `no`, `off` (case-insensitive); **anything else is true** |
 | `max_merges_per_run` | int | 10 | 0–500; 0 means report-only even when `dry_run=false` |

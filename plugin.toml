@@ -1,0 +1,93 @@
+[plugin]
+name = "mbid-artist-merge"
+display_name = "MBID Artist Merge"
+version = "0.1.0"
+api_version = 1
+entrypoint = "plugin:MbidArtistMerge"
+capabilities = ["scheduler", "publisher"]
+description = "Merges local-only artists into the MusicBrainz-linked artist that their files' embedded MBIDs point to (e.g. romanized or translated names). Dry-run by default."
+author = "deadmanproqn"
+homepage = "https://github.com/deadmanproqn/droppedneedle-mbid-artist-merge"
+
+[schedule]
+interval_minutes = 360
+run_on_load = true
+
+[[route]]
+path = "report"
+method = "GET"
+auth = "admin"
+rate_limit_per_minute = 30
+
+[[route]]
+path = "run"
+method = "POST"
+auth = "admin"
+rate_limit_per_minute = 2
+
+[[settings]]
+key = "base_url"
+label = "Server URL"
+help = "How the plugin reaches this server from inside it. Default http://127.0.0.1:8688. Include BASE_PATH if you set one, e.g. http://127.0.0.1:8688/music."
+
+[[settings]]
+key = "username"
+label = "Admin username"
+help = "A local DroppedNeedle admin account. Leave empty when using an API token."
+
+[[settings]]
+key = "password"
+label = "Admin password"
+help = "Password for the admin account above."
+secret = true
+
+[[settings]]
+key = "api_token"
+label = "API token (optional)"
+help = "Instead of username/password: a bearer token of an admin session. Tokens expire 30 days after issue."
+secret = true
+
+[[settings]]
+key = "dry_run"
+label = "Dry run"
+help = "true (default) only reports what it would merge. Set to false to merge. Merges cannot be undone; back up library.db first."
+
+[[settings]]
+key = "max_merges_per_run"
+label = "Max merges per run"
+help = "Default 10."
+
+[[settings]]
+key = "max_artists_per_run"
+label = "Max artists checked per run"
+help = "Default 200. Larger libraries are covered over several runs."
+
+[[settings]]
+key = "samples_per_artist"
+label = "Files sampled per artist"
+help = "Default 5. Every sampled file that names the artist must carry the same MBID."
+
+[[settings]]
+key = "min_agreeing_samples"
+label = "Minimum agreeing files"
+help = "Default 2, lowered automatically for artists with fewer files."
+
+[[settings]]
+key = "request_delay_ms"
+label = "Delay between API calls (ms)"
+help = "Default 100. Raise it if the server feels busy while the plugin runs."
+
+[[settings]]
+key = "time_budget_seconds"
+label = "Time budget per run (s)"
+help = "Default 900. The run stops cleanly and resumes next time."
+
+[[settings]]
+key = "exclude_artist_ids"
+label = "Never touch these artist IDs"
+help = "Comma-separated local artist IDs, as source or survivor."
+
+[[settings]]
+key = "exclude_mbids"
+label = "Ignore these MBIDs"
+help = "Comma-separated MusicBrainz artist IDs to never act on."
