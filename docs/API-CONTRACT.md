@@ -145,7 +145,7 @@ Host-mounted plugin routes (`auth` from the manifest; `admin` re-checked at runt
 
 ### Plugin settings panel (`[plugin_ui]`) — read from `PluginPanel.svelte` and `routes/plugins.py`
 - `GET /plugins/{name}/ui/panel.js` (admin) serves the bundle as `text/javascript`. It opens the file with `dir_fd`/`O_DIRECTORY`, so it fails (500) on a Windows-hosted server; Linux/Docker is fine.
-- The settings page inlines the bundle into an `<iframe sandbox="allow-scripts">` srcdoc with CSP `default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data: blob:; connect-src 'none'; …`, body `font:13px/1.5 system-ui; padding:12px; background:#fff`, element height ~192 px, plus a `csp` attribute set after insertion.
+- The settings page inlines the bundle into an `<iframe sandbox="allow-scripts">` srcdoc with CSP `default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data: blob:; connect-src 'none'; …`, body `font:13px/1.5 system-ui; padding:12px; background:#fff`, element height fixed at ~192 px (`h-48`; no resize RPC, and the sandbox cannot reach the parent page), plus a `csp` attribute set after insertion.
 - Bridge: `parent.postMessage({id, method, params}, "*")`; replies `{id, result}` or `{id, error: {code, message}}`. Methods: `sources.list`, `search.preview`, `get_settings`, `health.get`; anything else → `unknown_method`.
 - `search.preview` → `GET /plugins/ext/{name}/search?query=<params.query, ≤200 chars>`; the plugin's JSON body comes back as `result` (errors as `search_unavailable`).
 

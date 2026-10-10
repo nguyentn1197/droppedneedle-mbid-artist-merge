@@ -77,12 +77,15 @@ so you notice.
 ## The settings panel
 
 In **Settings → Plugins**, open the plugin's card and expand **Plugin panel**
-(admins only, while the plugin is enabled). It shows:
+(admins only, while the plugin is enabled). DroppedNeedle gives panels a fixed,
+small frame, so the panel packs it:
 
-- whether the plugin is in **Dry run** or **Live** mode, and how the last run went;
-- the counts per decision, then every artist that needs a look, most important
-  first ("Would merge Otonose Kanade → 音乃瀬奏", "Conflicting MBIDs", …);
-- problems from the last run, and settings errors.
+- a one-line bar: **Dry run** or **Live**, how and when the last run went, **Run now**;
+- on the left, the count per decision; click one to show only those artists
+  (or **Problems** for errors from the run);
+- on the right, one line per artist, most important first ("Would merge ·
+  Otonose Kanade → 音乃瀬奏 · MBID … · 5 files checked"); hover a line for the full
+  MBIDs and details. Both columns scroll.
 
 **Run now** starts a run straight away; the panel shows *Running…* and updates
 when it finishes. In live mode it asks for a second click first, because merges

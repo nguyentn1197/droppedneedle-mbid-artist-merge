@@ -515,6 +515,7 @@ Verified against v2.15.0's `PluginPanel.svelte`: a `[plugin_ui]` bundle runs in 
 - `search` with an empty query returns the panel state: `dry_run`, `max_merges_per_run` or `config_error`, `running` (task or lease), `report` = `report.panel_view(last report)` (no evidence, capped lists), `plugin_version`, and `run_code`.
 - `search` with `run:<code>` starts a run like `POST run` when `<code>` is the current one-time code (single use, 10-minute TTL, constant-time compare); otherwise `{"started": false, "reason": "stale_code"}`. The code makes this side-effecting GET safe against cross-site links: another site cannot read the state, so it cannot know the code.
 - This uses the read-only bridge for a write. The owner chose that over a report-only panel; it may break if upstream tightens the bridge. The panel keeps working as a report viewer either way.
+- The frame height is fixed by the host (Tailwind `h-48`, ~192 px) and the bridge has no resize message, so the panel cannot grow. Layout (0.2.1): one-line bar, then two independently scrolling columns (decision filters | one line per artist); a horizontal filter strip below 560 px.
 - Panel rules: no `fetch`, storage or `innerHTML` (artist names are user data; DOM built with `textContent`); no dialogs (sandbox), so live mode uses an inline two-step confirm.
 - Chromium enforces the iframe's `csp` attribute (`default-src 'none'`) only on navigations after it is set; the host sets it in an effect after inserting the srcdoc iframe, so inline scripts run. `scripts/ui/preview.py` mirrors that order.
 

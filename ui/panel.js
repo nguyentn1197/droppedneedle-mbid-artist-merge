@@ -1,10 +1,15 @@
 // MBID Artist Merge: settings panel for DroppedNeedle (Settings > Plugins > Plugin panel).
 //
-// The host runs this file inside a sandboxed iframe: no network, no storage, no
-// dialogs. Its only bridge to the plugin is the host's read-only `search.preview`
-// RPC, which the host forwards to this plugin's GET ext/search route:
-//   query ""          -> panel state (settings summary, running, last report, run code)
+// The host runs this file inside a sandboxed iframe of fixed height (~192 px): no
+// network, no storage, no dialogs, and no way to resize the frame. Its only bridge to
+// the plugin is the host's read-only `search.preview` RPC, which the host forwards to
+// this plugin's GET ext/search route:
+//   query ""           -> panel state (settings summary, running, last report, run code)
 //   query "run:<code>" -> start a run, if <code> is the one-time code from the state
+//
+// Layout for the small frame: a one-line bar (mode, last run, Run now) over two
+// independently scrolling columns: decision filters on the left, one line per artist
+// on the right. Narrow frames stack the filters as a horizontal strip.
 (() => {
   "use strict";
 
@@ -43,6 +48,10 @@
     conflict: "warn",
     ambiguous: "warn",
   };
+  const DETAILS = {
+    more_ids_than_credits: "more MBIDs than credited names",
+    same_name_different_ids: "same name credited with different MBIDs",
+  };
   const ORDER = Object.keys(LABELS);
   const STATUS = {
     ok: "OK",
@@ -55,6 +64,7 @@
     lease_held: "Another run was in progress",
     internal_error: "Internal error",
   };
+  const PROBLEMS = "__problems";
 
   // --- bridge -----------------------------------------------------------------
 
@@ -108,16 +118,18 @@
   }
 
   const short = (mbid) => (mbid ? `${String(mbid).slice(0, 8)}…` : "");
+  const plural = (n, word) => `${n} ${word}${n === 1 ? "" : "s"}`;
 
-  // --- state & rendering --------------------------------------------------------
+  // --- state --------------------------------------------------------------------
 
   const ui = {
     state: null, // last panel state from the plugin
     problem: "", // bridge or plugin error text
-    note: "", // transient message under the header
+    note: "", // short message after the status
     busy: false, // a request to start a run is in flight
     confirming: false, // live mode: waiting for the second click
     waitingFor: null, // run_id we started and are waiting on
+    filter: "all", // "all", a decision, or PROBLEMS
   };
   let pollTimer = 0;
   let confirmTimer = 0;
@@ -128,183 +140,232 @@
       "style",
       null,
       `
-      #panel-root{--muted:#5b6470;--line:#e6e8eb}
-      .top{position:sticky;top:-12px;margin:-12px -12px 0;padding:12px 12px 8px;background:#fff;border-bottom:1px solid var(--line);z-index:1}
-      .row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-      .grow{flex:1;min-width:0}
-      .badge{font-size:11px;font-weight:600;padding:1px 7px;border-radius:999px;white-space:nowrap}
-      .dry{background:#e8efff;color:#1d4ed8}.live{background:#fde8e7;color:#b42318}
-      .status{color:var(--muted);font-size:12px}
+      html,body{height:100%}
+      body{padding:0!important;overflow:hidden}
+      #panel-root{height:100%;--muted:#5b6470;--line:#e6e8eb;--soft:#eef1f4}
+      .app{display:flex;flex-direction:column;height:100%}
+      .bar{flex:none;display:flex;align-items:center;gap:8px;padding:6px 10px;border-bottom:1px solid var(--line)}
+      .status{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--muted);font-size:12px}
       .status b{color:#111;font-weight:600}
-      button{font:inherit;font-size:12px;font-weight:600;border-radius:6px;border:1px solid transparent;padding:4px 10px;cursor:pointer;background:#111;color:#fff}
+      .banner{flex:none;padding:3px 10px;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+      .badge{flex:none;font-size:11px;font-weight:600;padding:1px 7px;border-radius:999px;white-space:nowrap}
+      .dry{background:#e8efff;color:#1d4ed8}.live{background:#fde8e7;color:#b42318}
+      button{font:inherit;font-size:12px;font-weight:600;border-radius:6px;border:1px solid transparent;padding:3px 10px;cursor:pointer;background:#111;color:#fff;white-space:nowrap}
       button.danger{background:#b42318}
-      button.quiet{background:none;color:var(--muted);border-color:var(--line);font-weight:500}
+      button.quiet{background:none;color:var(--muted);border-color:var(--line);font-weight:500;padding:3px 8px}
       button:disabled{opacity:.5;cursor:default}
       button:focus-visible{outline:2px solid #1d4ed8;outline-offset:1px}
-      .chips{margin-top:6px;display:flex;gap:4px;flex-wrap:wrap}
-      .chip{font-size:11px;padding:0 6px;border-radius:4px;background:#eef1f4;color:#44505c;white-space:nowrap}
-      .note{margin-top:6px;font-size:12px}
-      .note.bad,.note.warn{padding:4px 8px;border-radius:6px}
-      ul{list-style:none;margin:8px 0 0;padding:0}
-      li{padding:5px 0;border-bottom:1px solid var(--line);display:flex;gap:8px;align-items:baseline}
-      li:last-child{border-bottom:0}
-      .tag{flex:none;width:118px;font-size:11px;font-weight:600;padding:0 6px;border-radius:4px;background:#eef1f4;color:#44505c;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-      .who{min-width:0;overflow-wrap:anywhere}
-      .sub{display:block;color:var(--muted);font-size:11px}
+      .main{flex:1;min-height:0;display:flex}
+      .side{flex:none;width:200px;overflow-y:auto;border-right:1px solid var(--line);padding:4px 0}
+      .list{flex:1;min-width:0;overflow-y:auto}
+      .filter{display:flex;align-items:center;gap:6px;width:100%;padding:2px 10px;border:0;border-radius:0;background:none;color:#111;font-weight:500;text-align:left}
+      .filter:hover{background:#f6f7f9}
+      .filter[aria-pressed="true"]{background:var(--soft);font-weight:600}
+      .filter .lbl{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis}
+      .n{flex:none;font-size:11px;font-weight:600;min-width:22px;text-align:center;padding:0 5px;border-radius:999px;background:var(--soft);color:#44505c}
+      .side .meta{padding:4px 10px 0;color:var(--muted);font-size:11px}
+      .row{display:flex;align-items:baseline;gap:8px;padding:3px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+      .tag{flex:none;width:112px;font-size:11px;font-weight:600;padding:0 6px;border-radius:4px;background:var(--soft);color:#44505c;overflow:hidden;text-overflow:ellipsis}
+      .who{flex:0 1 auto;min-width:0;max-width:60%;overflow:hidden;text-overflow:ellipsis}
       .arrow{color:var(--muted);padding:0 4px}
-      .empty{color:var(--muted);margin-top:10px}
-      .foot{margin-top:8px;color:var(--muted);font-size:11px}
+      .sub{flex:1 1 0;min-width:0;overflow:hidden;text-overflow:ellipsis;color:var(--muted);font-size:11px}
+      .msg{padding:8px 10px;color:var(--muted)}
       .good{background:#e7f6ec;color:#0f6b38}.warn{background:#fff4dc;color:#7a4f00}.bad{background:#fde8e7;color:#b42318}
+      @media (max-width:560px){
+        .main{flex-direction:column}
+        .side{width:auto;display:flex;gap:2px;overflow-x:auto;overflow-y:hidden;border-right:0;border-bottom:1px solid var(--line);padding:3px 6px}
+        .filter{width:auto;flex:none;padding:1px 6px;border-radius:4px}
+        .side .meta{display:none}
+        .tag{width:auto;max-width:96px}
+      }
       `
     )
   );
-  const view = h("div", { "aria-live": "polite" });
+  const view = h("div", { class: "app", "aria-live": "polite" });
   root.append(view);
 
-  function header() {
+  // --- rendering --------------------------------------------------------------------
+
+  function bar() {
     const state = ui.state;
     const report = state && state.report;
     const live = state && state.dry_run === false;
     const running = Boolean(state && state.running) || Boolean(ui.waitingFor);
 
-    let statusLine;
-    if (!state) statusLine = [ui.problem ? "Plugin unavailable" : "Loading…"];
-    else if (running) statusLine = [h("b", null, "Running…"), " the report updates when it finishes"];
-    else if (!report) statusLine = ["No run yet"];
+    let status;
+    if (!state) status = [ui.problem ? "Plugin unavailable" : "Loading…"];
+    else if (ui.confirming) status = [h("b", null, "Merges cannot be undone."), " Back up library.db, then confirm."];
+    else if (running) status = [h("b", null, "Running…"), " the report updates when it finishes"];
+    else if (!report) status = ["No run yet"];
     else {
       const label = STATUS[report.status] || report.status;
-      statusLine = [
+      status = [
         "Last run ",
         h("b", null, report.partial && report.status === "ok" ? "OK (partial)" : label),
         ` · ${ago(report.finished_at)}`,
         report.trigger ? ` · ${report.trigger}` : "",
       ];
     }
+    if (ui.note && !ui.confirming) status.push(` · ${ui.note}`);
 
     const canRun = state && !state.config_error && !running && !ui.busy;
-    const button = ui.confirming
-      ? h("button", { class: "danger", onclick: start }, "Confirm: merge for real")
-      : h(
-          "button",
-          {
-            onclick: start,
-            disabled: !canRun,
-            title: state && state.config_error ? "Fix the settings first" : null,
-          },
-          running ? "Running…" : ui.busy ? "Starting…" : "Run now"
-        );
-
-    const top = h(
+    return h(
       "div",
-      { class: "top" },
-      h(
-        "div",
-        { class: "row" },
-        state
+      { class: "bar" },
+      state
+        ? h(
+            "span",
+            { class: `badge ${live ? "live" : "dry"}`, title: live ? "dry_run = false" : "dry_run = true" },
+            live ? "Live" : "Dry run"
+          )
+        : null,
+      h("span", { class: "status", title: status.map((s) => (s instanceof Node ? s.textContent : s)).join("") }, status),
+      ui.confirming ? h("button", { class: "quiet", onclick: cancelConfirm }, "Cancel") : null,
+      ui.confirming
+        ? h("button", { class: "danger", onclick: start }, "Confirm: merge for real")
+        : state
           ? h(
-              "span",
-              { class: `badge ${live ? "live" : "dry"}`, title: live ? "dry_run = false" : "dry_run = true" },
-              live ? "Live" : "Dry run"
+              "button",
+              { onclick: start, disabled: !canRun, title: state.config_error ? "Fix the settings first" : null },
+              running ? "Running…" : ui.busy ? "Starting…" : "Run now"
             )
           : null,
-        h("span", { class: "status grow" }, ...statusLine),
-        ui.confirming ? h("button", { class: "quiet", onclick: cancelConfirm }, "Cancel") : null,
-        state ? button : null,
-        !state && ui.problem ? h("button", { class: "quiet", onclick: refresh }, "Retry") : null,
-        !running && state ? h("button", { class: "quiet", onclick: refresh, title: "Reload the report" }, "↻") : null
-      )
+      state && !running ? h("button", { class: "quiet", onclick: refresh, title: "Reload the report" }, "↻") : null,
+      !state && ui.problem ? h("button", { class: "quiet", onclick: refresh }, "Retry") : null
     );
-
-    if (report && report.totals) {
-      const chips = ORDER.filter((key) => report.totals[key]).map((key) =>
-        h("span", { class: `chip ${TONE[key] || ""}` }, `${report.totals[key]} ${LABELS[key].toLowerCase()}`)
-      );
-      if (report.totals.examined) chips.push(h("span", { class: "chip" }, `${report.totals.examined} checked`));
-      if (chips.length) top.append(h("div", { class: "chips" }, chips));
-    }
-    if (ui.confirming) {
-      top.append(
-        h("div", { class: "note bad" }, "Merges cannot be undone. Back up library.db first, then confirm.")
-      );
-    } else if (state && state.config_error) {
-      top.append(h("div", { class: "note bad" }, `Settings problem: ${state.config_error}`));
-    } else if (ui.problem) {
-      top.append(h("div", { class: "note bad" }, ui.problem));
-    } else if (ui.note) {
-      top.append(h("div", { class: "note" }, ui.note));
-    }
-    return top;
   }
 
-  function actionRow(action) {
-    const tone = TONE[action.decision] || "";
+  function banner() {
+    const state = ui.state;
+    const text = state && state.config_error ? `Settings problem: ${state.config_error}` : ui.problem;
+    return text ? h("div", { class: "banner bad", title: text }, text) : null;
+  }
+
+  function listedCounts(report) {
+    const counts = {};
+    for (const a of report.actions || []) counts[a.decision] = (counts[a.decision] || 0) + 1;
+    return counts;
+  }
+
+  function filters(report) {
+    const totals = report.totals || {};
+    const listed = listedCounts(report);
+    const items = [["all", "All listed", (report.actions || []).length, ""]];
+    for (const key of ORDER) if (totals[key]) items.push([key, LABELS[key], totals[key], TONE[key] || ""]);
+    if (report.errors_total) items.push([PROBLEMS, "Problems", report.errors_total, "bad"]);
+    const buttons = items.map(([key, label, n, tone]) =>
+      h(
+        "button",
+        {
+          class: "filter",
+          "aria-pressed": ui.filter === key ? "true" : "false",
+          title: key in listed || key === "all" || key === PROBLEMS ? null : "Counted only, not listed",
+          onclick: () => {
+            ui.filter = key;
+            render(true);
+          },
+        },
+        h("span", { class: "lbl" }, label),
+        h("span", { class: `n ${tone}` }, n)
+      )
+    );
+    const meta = [];
+    if (totals.examined) meta.push(`${totals.examined} checked`);
+    if (ui.state && ui.state.plugin_version) meta.push(`v${ui.state.plugin_version}`);
+    return h("div", { class: "side" }, buttons, meta.length ? h("div", { class: "meta" }, meta.join(" · ")) : null);
+  }
+
+  function actionRow(action, showTag) {
     const extra = [];
     if (action.mbid) extra.push(`MBID ${short(action.mbid)}`);
     if (action.mbids) extra.push(`MBIDs ${action.mbids.map(short).join(", ")}`);
     if (action.shared_with) extra.push(`also: ${action.shared_with.join(", ")}`);
-    if (action.files) extra.push(`${action.files} file${action.files === 1 ? "" : "s"} checked`);
-    if (action.detail) extra.push(action.detail);
+    if (action.files) extra.push(plural(action.files, "file") + " checked");
+    if (action.detail) extra.push(DETAILS[action.detail] || action.detail);
+    const name = action.target ? `${action.source} → ${action.target}` : action.source || action.source_id;
+    const full = [LABELS[action.decision] || action.decision, name, action.mbid, ...(action.mbids || []), ...extra.slice(1)]
+      .filter(Boolean)
+      .join("\n");
     return h(
-      "li",
-      null,
-      h("span", { class: `tag ${tone}`, title: action.decision }, LABELS[action.decision] || action.decision),
+      "div",
+      { class: "row", title: full },
+      showTag ? h("span", { class: `tag ${TONE[action.decision] || ""}` }, LABELS[action.decision] || action.decision) : null,
       h(
         "span",
         { class: "who" },
         action.source || action.source_id,
-        action.target ? [h("span", { class: "arrow" }, "→"), action.target] : null,
-        extra.length ? h("span", { class: "sub", title: action.mbid || null }, extra.join(" · ")) : null
-      )
+        action.target ? [h("span", { class: "arrow" }, "→"), action.target] : null
+      ),
+      extra.length ? h("span", { class: "sub" }, extra.join(" · ")) : null
     );
   }
 
-  function body() {
+  function list(report) {
+    const rows = [];
+    const totals = report.totals || {};
+    if (ui.filter === PROBLEMS) {
+      for (const e of report.errors || []) {
+        const text = [e.message, e.status ? `HTTP ${e.status}` : ""].filter(Boolean).join(" · ");
+        rows.push(h("div", { class: "row", title: text }, h("span", { class: "tag bad" }, e.stage || "error"), h("span", { class: "sub" }, text)));
+      }
+      if (report.errors_total > (report.errors || []).length) {
+        rows.push(h("div", { class: "msg" }, `…and ${report.errors_total - report.errors.length} more in the full report.`));
+      }
+      return h("div", { class: "list" }, rows);
+    }
+    const all = ui.filter === "all";
+    const actions = (report.actions || []).filter((a) => all || a.decision === ui.filter);
+    rows.push(...actions.map((a) => actionRow(a, all)));
+    if (!all) {
+      const hidden = (totals[ui.filter] || 0) - actions.length;
+      if (hidden > 0) {
+        const why =
+          ui.filter === "no_mbid"
+            ? "Artists whose files carry no MBID are only counted."
+            : `${hidden} more unchanged since an earlier run (reused from the cache), so only counted.`;
+        rows.push(h("div", { class: "msg" }, actions.length ? why : `${why} Nothing new to list.`));
+      }
+    } else if (!actions.length) {
+      rows.push(h("div", { class: "msg" }, "Nothing to act on in the last run."));
+    }
+    if (all && report.actions_total > (report.actions || []).length) {
+      rows.push(h("div", { class: "msg" }, `…and ${report.actions_total - report.actions.length} more in the full report.`));
+    }
+    return h("div", { class: "list" }, rows);
+  }
+
+  function main() {
     const state = ui.state;
-    if (!state) return h("div");
+    if (!state) return null;
     const report = state.report;
     if (!report) {
       return h(
         "div",
-        { class: "empty" },
+        { class: "msg" },
         state.dry_run === false
           ? "No run yet. Run now merges for real (dry_run is off)."
           : "No run yet. Run now to see what it would merge; nothing is changed in dry run."
       );
     }
-    const parts = [];
-    if (report.actions && report.actions.length) {
-      parts.push(h("ul", null, report.actions.map(actionRow)));
-      if (report.actions_total > report.actions.length) {
-        parts.push(h("div", { class: "foot" }, `…and ${report.actions_total - report.actions.length} more in the full report.`));
-      }
-    } else {
-      parts.push(h("div", { class: "empty" }, "Nothing to act on in the last run."));
-    }
-    if (report.errors && report.errors.length) {
-      parts.push(
-        h("div", { class: "foot" }, `${report.errors_total} problem${report.errors_total === 1 ? "" : "s"} during the run:`),
-        h(
-          "ul",
-          null,
-          report.errors.map((e) =>
-            h("li", null, h("span", { class: "tag bad" }, e.stage || "error"), h("span", { class: "who" }, e.message || ""))
-          )
-        )
-      );
-    }
-    parts.push(
-      h(
-        "div",
-        { class: "foot" },
-        "Full report: /api/v1/plugins/ext/mbid-artist-merge/report",
-        state.plugin_version ? ` · v${state.plugin_version}` : ""
-      )
-    );
-    return h("div", null, parts);
+    if (ui.filter !== "all" && ui.filter !== PROBLEMS && !(report.totals || {})[ui.filter]) ui.filter = "all";
+    if (ui.filter === PROBLEMS && !report.errors_total) ui.filter = "all";
+    return h("div", { class: "main" }, filters(report), list(report));
   }
 
-  function render() {
-    view.replaceChildren(header(), body());
+  function render(resetList) {
+    const old = view.querySelector(".list");
+    const side = view.querySelector(".side");
+    const listTop = old && !resetList ? old.scrollTop : 0;
+    const sideTop = side ? side.scrollTop : 0;
+    const sideLeft = side ? side.scrollLeft : 0;
+    view.replaceChildren(...[bar(), banner(), main()].filter(Boolean));
+    const fresh = view.querySelector(".list");
+    if (fresh) fresh.scrollTop = listTop;
+    const freshSide = view.querySelector(".side");
+    if (freshSide) {
+      freshSide.scrollTop = sideTop;
+      freshSide.scrollLeft = sideLeft;
+    }
   }
 
   // --- behaviour ------------------------------------------------------------------
@@ -331,9 +392,9 @@
     if (state && ui.waitingFor && !state.running) {
       const report = state.report;
       if (report && report.run_id === ui.waitingFor) {
-        ui.note = report.status === "ok" ? "Run finished." : "Run finished with a problem; see below.";
+        ui.note = report.status === "ok" ? "Run finished." : "Run finished with a problem.";
       } else {
-        ui.note = "That run ended without a new report (another run was already in progress).";
+        ui.note = "That run ended without a new report (another run was in progress).";
       }
       ui.waitingFor = null;
     }

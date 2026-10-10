@@ -78,7 +78,8 @@ function escapeForInlineScript(js) { return js.replace(/<[/]script/gi, "<\\\\/sc
 const harness = SCENARIO.clicks
   ? `<` + `script>${escapeForInlineScript(
       `(() => { let n = ${SCENARIO.clicks}; const click = () => {` +
-      `const b = [...document.querySelectorAll("button")].find(x => !x.classList.contains("quiet") && !x.disabled);` +
+      `const sel = ${JSON.stringify(SCENARIO.clickSelector || "")};` +
+      `const b = sel ? document.querySelector(sel) : [...document.querySelectorAll("button")].find(x => !x.classList.contains("quiet") && !x.disabled);` +
       `if (b) { b.click(); n--; } if (n > 0) setTimeout(click, 700); }; setTimeout(click, 900); })();`
     )}<` + `/script>`
   : "";
@@ -128,6 +129,87 @@ window.addEventListener("message", (event) => {
 """
 
 
+def big_report() -> dict[str, Any]:
+    """A larger report: 39 would merge, 31 ambiguous, 87 no linked artist (20 listed)…"""
+    state = copy.deepcopy(SAMPLE)
+    names = ["Otonose Kanade", "Hoshimachi Suisei", "Minato Aqua", "Usada Pekora", "KAF"]
+
+    def mbid(n: int) -> str:
+        return f"{n:08x}-1111-4111-8111-111111111111"
+
+    actions: list[dict[str, Any]] = []
+    for n in range(39):
+        actions.append(
+            {
+                "decision": "would_merge",
+                "source": f"{names[n % 5]} {n}" if n >= 5 else names[n],
+                "target": "音乃瀬奏" if n == 0 else f"アーティスト {n}",
+                "mbid": mbid(n),
+                "files": 5,
+            }
+        )
+    for n in range(31):
+        actions.append(
+            {
+                "decision": "ambiguous",
+                "source": "KAF & ORESAMA" if n == 0 else f"Masayuki Suzuki feat.Airi Suzuki {n}",
+                "detail": "more_ids_than_credits" if n % 3 else "same_name_different_ids",
+                "files": 1,
+            }
+        )
+    actions += [
+        {
+            "decision": "shared_mbid_without_link",
+            "source": f"Alias {n}",
+            "mbid": mbid(900),
+            "shared_with": [f"Alias {1 - n}"],
+            "files": 2,
+        }
+        for n in range(2)
+    ]
+    actions += [
+        {"decision": "no_target", "source": f"Indie Artist {n}", "mbid": mbid(500 + n), "files": 3}
+        for n in range(20)
+    ]
+    actions.append(
+        {
+            "decision": "insufficient_evidence",
+            "source": "Half Tagged",
+            "mbid": mbid(7),
+            "detail": "1 of 5 sampled files carry the mbid, need 2",
+            "files": 5,
+        }
+    )
+    actions.append(
+        {
+            "decision": "excluded_mbid",
+            "source": "Various Artists Clone",
+            "mbid": mbid(8),
+            "files": 2,
+        }
+    )
+    state["report"].update(
+        trigger="manual",
+        actions=actions,
+        actions_total=len(actions),
+        totals={
+            "artists_listed": 420,
+            "linked": 160,
+            "candidates": 260,
+            "examined": 200,
+            "skipped_cached": 67,
+            "would_merge": 39,
+            "ambiguous": 31,
+            "shared_mbid_without_link": 2,
+            "no_target": 87,
+            "insufficient_evidence": 1,
+            "excluded_mbid": 1,
+            "no_mbid": 39,
+        },
+    )
+    return state
+
+
 def scenarios() -> dict[str, dict[str, Any]]:
     dry = copy.deepcopy(SAMPLE)
     live = {**copy.deepcopy(SAMPLE), "dry_run": False}
@@ -151,6 +233,18 @@ def scenarios() -> dict[str, dict[str, Any]]:
     return {
         "dry": {"state": dry},
         "dry-narrow": {"state": dry, "panelWidth": 360},
+        "big": {"state": big_report()},
+        "big-narrow": {"state": big_report(), "panelWidth": 420},
+        "big-filter-no-target": {
+            "state": big_report(),
+            "clicks": 1,
+            "clickSelector": ".filter:nth-of-type(5)",
+        },
+        "big-filter-no-mbid": {
+            "state": big_report(),
+            "clicks": 1,
+            "clickSelector": ".filter:nth-of-type(8)",
+        },
         "empty": {"state": {**dry, "report": None}},
         "running": {"state": dry, "clicks": 1},
         "finished": {"state": dry, "clicks": 1, "finishAfterPolls": 1, "finishedMinutesAgo": 0},
@@ -225,7 +319,7 @@ def main() -> None:
                 # virtual-time budget also drives its timers
                 "--disable-site-isolation-trials",
                 "--disable-features=site-per-process,IsolateOrigins",
-                "--window-size=680,270",
+                "--window-size=820,270",
                 f"--virtual-time-budget={budget}",
                 f"--screenshot={png}",
                 html.as_uri(),

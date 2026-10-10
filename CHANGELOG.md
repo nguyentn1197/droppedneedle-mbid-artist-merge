@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.2.1 — 2026-10-10
+
+- Settings panel fits its fixed-height frame (DroppedNeedle sizes it at ~192 px
+  and offers no way to resize it): a one-line status bar, then two scrolling
+  columns. Left: the counts, clickable to filter. Right: one line per artist,
+  full details on hover. Narrow frames show the counts as a scrolling strip.
+- Decisions that are only counted (no MBID in files, results reused from the
+  cache) explain why when selected, instead of an empty list.
+
 ## 0.2.0 — 2026-10-10
 
 - Settings panel (Settings → Plugins → Plugin panel): dry-run/live mode, last
