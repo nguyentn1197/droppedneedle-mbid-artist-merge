@@ -432,6 +432,7 @@ In **dry-run**, run steps 1–4 (all read-only) and record `would_merge` with `r
 | connection error / timeout on a call | retry that call once after 2 s; then stop the run, report `server_unreachable`, save cursor |
 | 5xx | same as connection error |
 | 409 `STALE_REVISION` on preview/merge | per-artist `stale`; continue |
+| other 4xx on preview/merge, or a preview without a token | per-artist `error`; stop further merges in this run (same as a verification mismatch) |
 | 400 on `/tags` | per-sample `sample_error`; continue |
 | time budget exceeded | finish the current artist, save state, report `partial: true` |
 | `asyncio.CancelledError` (host timeout or disable) | let it propagate; a `finally` saves state best-effort, releases the lease and logs out. The saved report has `status: ok`, `partial: true` and a `cancelled` error entry |

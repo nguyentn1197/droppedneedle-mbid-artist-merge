@@ -82,6 +82,7 @@ class FakeDN:
     on_request: Callable[[Call], None] | None = None
     reconciliation_state: str = "succeeded"
     extra_identity_conflicts: list[str] = field(default_factory=list)
+    merge_result_patch: dict[str, Any] = field(default_factory=dict)  # corrupt replies
     catalog_revision: int = 9
 
     def __post_init__(self) -> None:
@@ -401,6 +402,7 @@ class FakeDN:
             retired_artist_ids=sources,
             catalog_revision=self.catalog_revision,
         )
+        result.update(self.merge_result_patch)
         self.merges.append(copy.deepcopy(data))
         if key:
             self.idempotency[key] = copy.deepcopy(result)

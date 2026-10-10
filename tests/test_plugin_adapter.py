@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import importlib.util
 import json
 import logging
@@ -15,7 +16,7 @@ from typing import Any
 import pytest
 from fake_dn import ADMIN_PASSWORD, ADMIN_USER, ORIGIN, FakeDN
 
-from mbid_artist_merge.state import REPORT_KEY, MemoryStateStore
+from mbid_artist_merge.state import LEASE_KEY, REPORT_KEY, MemoryStateStore
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 PACKAGE = "mbid_artist_merge"
@@ -193,3 +194,48 @@ async def test_unknown_route_is_404(make_plugin: Any) -> None:
     for method, path in [("GET", "nope"), ("DELETE", "report"), ("POST", "report")]:
         response = await plugin.handle_route(method, path, {}, None)
         assert response.status == 404
+
+
+async def test_post_run_starts_a_background_run(make_plugin: Any, store: MemoryStateStore) -> None:
+    plugin = make_plugin()
+    response = await asyncio.wait_for(plugin.handle_route("POST", "run", {}, None), timeout=5)
+    assert response.status == 200
+    assert response.body["started"] is True
+    run_id = response.body["run_id"]
+    assert plugin._task is not None
+    await plugin._task
+    report = (await plugin.handle_route("GET", "report", {}, None)).body
+    assert (report["run_id"], report["trigger"], report["status"]) == (run_id, "manual", "ok")
+
+
+async def test_post_run_while_running_is_refused(make_plugin: Any) -> None:
+    plugin = make_plugin()
+    first = await plugin.handle_route("POST", "run", {}, None)
+    second = await plugin.handle_route("POST", "run", {}, None)
+    assert first.body["started"] is True
+    assert second.body == {"started": False, "reason": "running"}
+    await plugin._task
+
+
+async def test_post_run_with_a_held_lease_is_refused(
+    make_plugin: Any, store: MemoryStateStore
+) -> None:
+    store.data[LEASE_KEY] = json.dumps({"run_id": "x", "expires_at": "2999-01-01T00:00:00Z"})
+    plugin = make_plugin()
+    response = await plugin.handle_route("POST", "run", {}, None)
+    assert response.body == {"started": False, "reason": "running"}
+    assert plugin._task is None
+
+
+async def test_manual_run_failure_is_logged_not_raised(
+    make_plugin: Any, monkeypatch: pytest.MonkeyPatch, caplog: pytest.LogCaptureFixture
+) -> None:
+    plugin = make_plugin()
+
+    async def boom(trigger: str, run_id: str | None = None) -> None:
+        raise RuntimeError("boom")
+
+    monkeypatch.setattr(plugin._runner, "run", boom)
+    await plugin.handle_route("POST", "run", {}, None)
+    await plugin._task
+    assert "internal_error trigger=manual" in caplog.text

@@ -146,8 +146,8 @@ class Runner:
     async def last_report(self) -> dict[str, Any] | None:
         return await self._state.read(REPORT_KEY)
 
-    async def run(self, trigger: str) -> dict[str, Any]:
-        run_id = str(uuid.uuid4())
+    async def run(self, trigger: str, run_id: str | None = None) -> dict[str, Any]:
+        run_id = run_id or str(uuid.uuid4())
         raw = dict(self._settings_source())
         secrets = _secrets_of(raw)
         parsed = Settings.parse(raw, interval_minutes=self._interval)
@@ -417,7 +417,53 @@ class Runner:
         )
         if settings.dry_run:
             return decision
-        return replace(decision, outcome=Outcome.DEFERRED, detail="live merges arrive in M4")
+        return await self._apply(run, decision, checked)
+
+    async def _apply(self, run: _Run, decision: Decision, ready: _Ready) -> Decision:
+        """Steps 5-7: merge, verify the response and the survivor's link, record.
+        Any verification mismatch stops further merges in this run."""
+        source, survivor = ready.source, ready.survivor
+        token = ready.preview.get("preview_token")
+        if not isinstance(token, str) or not token:
+            run.merges_stopped = True
+            return replace(decision, outcome=Outcome.ERROR, detail="preview returned no token")
+        try:
+            result = await run.api.merge(
+                ready.selection,
+                preview_token=token,
+                idempotency_key=idempotency_key(source, survivor),
+            )
+        except FATAL:
+            raise
+        except Conflict as exc:
+            return replace(
+                decision, outcome=Outcome.STALE, detail=f"merge {exc.code}: {exc.message}"
+            )
+        except ApiError as exc:
+            run.merges_stopped = True
+            return replace(decision, outcome=Outcome.ERROR, detail=f"merge failed: {exc}")
+        run.merges_done += 1
+
+        problems = merge_problems(result, source.id, survivor.id)
+        if not problems:
+            try:
+                after = await run.api.artist(survivor.id)
+            except FATAL:
+                raise
+            except ApiError as exc:
+                problems.append(f"survivor re-read failed: {exc}")
+            else:
+                if not after.is_linked or after.mbid != decision.mbid:
+                    problems.append(
+                        f"survivor link changed: state={after.artist_identity_state} "
+                        f"mbid={after.mbid} expected={decision.mbid}"
+                    )
+        if problems:
+            run.merges_stopped = True
+            detail = "verification failed, merges stopped: " + "; ".join(problems)
+            detail += f"; response={json.dumps(result, ensure_ascii=False)[:2000]}"
+            return replace(decision, outcome=Outcome.ERROR, detail=detail)
+        return replace(decision, outcome=Outcome.MERGED)
 
     async def _preflight(self, run: _Run, decision: Decision) -> Decision | _Ready:
         """Steps 1-4: re-read both artists, build the selection, preview it. Read-only."""
@@ -613,6 +659,29 @@ class Runner:
             except Exception:  # noqa: BLE001 - the report is already saved
                 self._log.exception("mbid-artist-merge on_report_failed")
         return data
+
+
+def idempotency_key(source: Artist, survivor: Artist) -> str:
+    """Deterministic, so a retried request is a safe replay of the same merge."""
+    return (
+        f"mbid-artist-merge:v1:{source.id}:{source.row_revision}"
+        f":{survivor.id}:{survivor.row_revision}"
+    )
+
+
+def merge_problems(result: object, source_id: str, survivor_id: str) -> list[str]:
+    """What is wrong with a merge response (empty when it is the expected one)."""
+    if not isinstance(result, dict):
+        return ["response is not an object"]
+    problems = []
+    if result.get("kind") != "merge_artist":
+        problems.append(f"kind={result.get('kind')!r}")
+    if result.get("surviving_artist_id") != survivor_id:
+        problems.append(f"surviving_artist_id={result.get('surviving_artist_id')!r}")
+    retired = result.get("retired_artist_ids")
+    if not isinstance(retired, list) or source_id not in retired:
+        problems.append(f"retired_artist_ids={retired!r}")
+    return problems
 
 
 def _refs(tracks: list[Any], album_id: str | None, role: str) -> list[TrackRef]:

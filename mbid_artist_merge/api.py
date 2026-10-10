@@ -179,8 +179,19 @@ class DroppedNeedleApi:
     async def merge_preview(self, selection: Mapping[str, Any]) -> dict[str, Any]:
         return await self._json("POST", "/library/artists/merge-preview", json=dict(selection))
 
-    async def merge(self, request: Mapping[str, Any]) -> dict[str, Any]:
-        return await self._json("POST", "/library/artists/merge", json=dict(request))
+    async def merge(
+        self, selection: Mapping[str, Any], *, preview_token: str, idempotency_key: str
+    ) -> dict[str, Any]:
+        """IRREVERSIBLE. Same selection values as the preview. ``provider_choice`` is
+        fixed here and nowhere else: the API default (``detach``) deletes the
+        survivor's MusicBrainz link."""
+        request = {
+            **selection,
+            "preview_token": preview_token,
+            "idempotency_key": idempotency_key,
+            "provider_choice": "retain_survivor",
+        }
+        return await self._json("POST", "/library/artists/merge", json=request)
 
     # --- transport ----------------------------------------------------------
 

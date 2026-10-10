@@ -8,8 +8,10 @@ copy of the package, so a plugin reload (any plugin save) picks up new code.
 
 from __future__ import annotations
 
+import asyncio
 import sys
 import time
+import uuid
 from pathlib import Path
 from typing import Any
 
@@ -53,6 +55,7 @@ class MbidArtistMerge:
         self._created = time.monotonic()
         self._ticks = 0
         self._last_report: dict[str, Any] | None = None
+        self._task: asyncio.Task[None] | None = None  # keeps the manual run alive
         self._runner = Runner(
             http=context.http,
             settings_source=lambda: context.settings,
@@ -77,10 +80,26 @@ class MbidArtistMerge:
         try:
             if verb == "GET" and subpath == "report":
                 return await self._report()
+            if verb == "POST" and subpath == "run":
+                return await self._start_run()
         except Exception:  # noqa: BLE001 - answer with an error body, never a traceback
             self._log.exception("mbid-artist-merge route_failed method=%s path=%s", verb, subpath)
             return _response(500, {"error": "internal error, see the server log"})
         return _response(404, {"error": "not found"})
+
+    async def _start_run(self) -> object:
+        """Start a manual run in the background; answer well inside the 5 s budget."""
+        if (self._task is not None and not self._task.done()) or await self._runner.lease_held():
+            return _response(200, {"started": False, "reason": "running"})
+        run_id = str(uuid.uuid4())
+        self._task = asyncio.create_task(self._manual_run(run_id))
+        return _response(200, {"started": True, "run_id": run_id})
+
+    async def _manual_run(self, run_id: str) -> None:
+        try:
+            await self._runner.run("manual", run_id=run_id)
+        except Exception:  # noqa: BLE001 - nobody awaits this task
+            self._log.exception("mbid-artist-merge internal_error trigger=manual run=%s", run_id)
 
     async def _report(self) -> object:
         report = self._last_report or await self._runner.last_report()
