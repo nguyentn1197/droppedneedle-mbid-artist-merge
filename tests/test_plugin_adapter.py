@@ -239,3 +239,33 @@ async def test_manual_run_failure_is_logged_not_raised(
     await plugin.handle_route("POST", "run", {}, None)
     await plugin._task
     assert "internal_error trigger=manual" in caplog.text
+
+
+async def test_merges_publish_a_plugin_notice(make_plugin: Any) -> None:
+    plugin = make_plugin(settings={**SETTINGS, "dry_run": "false"})
+    await plugin.on_tick()
+    assert plugin._ctx.published == [
+        (
+            "plugin_notice",
+            {"title": "MBID Artist Merge: 1 artist merged", "body": "Otonose Kanade -> 音乃瀬奏"},
+        )
+    ]
+
+
+async def test_dry_run_publishes_nothing(make_plugin: Any) -> None:
+    plugin = make_plugin()
+    await plugin.on_tick()
+    assert plugin._ctx.published == []
+
+
+async def test_publish_failure_is_harmless(
+    make_plugin: Any, caplog: pytest.LogCaptureFixture
+) -> None:
+    plugin = make_plugin(settings={**SETTINGS, "dry_run": "false"})
+
+    def broken(kind: str, payload: object = None, **kwargs: object) -> object:
+        raise ValueError("unknown publish kind")
+
+    plugin._ctx.publish = broken
+    await plugin.on_tick()
+    assert "notice_failed" in caplog.text

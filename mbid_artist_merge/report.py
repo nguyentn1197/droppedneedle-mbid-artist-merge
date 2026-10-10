@@ -191,3 +191,20 @@ def decision_line(decision: Decision) -> str:
         f"target={target.id if target else None} "
         f"target_name={target.name if target else None!r} mbid={decision.mbid}"
     )
+
+
+def notice_for(data: dict[str, Any], limit: int = 1000) -> dict[str, str] | None:
+    """A ``plugin_notice`` payload for a run that merged something, else None."""
+    merged = data.get("totals", {}).get("merged", 0)
+    if not merged:
+        return None
+    pairs = [
+        f"{a['source']['name']} -> {a.get('target', {}).get('name')}"
+        for a in data.get("actions", [])
+        if a.get("decision") == "merged"
+    ]
+    body = "; ".join(pairs)
+    if len(body) > limit:
+        body = body[: limit - 3] + "..."
+    noun = "artist" if merged == 1 else "artists"
+    return {"title": f"MBID Artist Merge: {merged} {noun} merged", "body": body}

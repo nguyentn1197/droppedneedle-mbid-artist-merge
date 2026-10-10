@@ -9,6 +9,7 @@ copy of the package, so a plugin reload (any plugin save) picks up new code.
 from __future__ import annotations
 
 import asyncio
+import inspect
 import sys
 import time
 import uuid
@@ -27,6 +28,7 @@ def _prepare_imports() -> None:
 
 _prepare_imports()
 
+from mbid_artist_merge.report import notice_for
 from mbid_artist_merge.runner import Runner, trigger_for
 from mbid_artist_merge.state import HostStateStore
 
@@ -71,9 +73,28 @@ class MbidArtistMerge:
         self._ticks += 1
         trigger = trigger_for(self._created, time.monotonic(), self._ticks == 1)
         try:
-            await self._runner.run(trigger)
+            await self._notify(await self._runner.run(trigger))
         except Exception:  # noqa: BLE001 - never raise into the host
             self._log.exception("mbid-artist-merge internal_error trigger=%s", trigger)
+
+    async def _notify(self, report: dict[str, Any]) -> None:
+        """Tell subscriber plugins about merges (best-effort; the UI shows nothing)."""
+        notice = notice_for(report)
+        if notice is None:
+            return
+        try:
+            result = self._ctx.publish("plugin_notice", notice)
+            if inspect.isawaitable(result):
+                result = await result
+        except Exception as exc:  # noqa: BLE001 - a notice is never worth failing a run
+            self._log.warning("mbid-artist-merge notice_failed error=%s", exc)
+            return
+        if getattr(result, "ok", True) is False:
+            self._log.warning(
+                "mbid-artist-merge notice_rejected status=%s error=%s",
+                getattr(result, "status", None),
+                getattr(result, "error", None),
+            )
 
     async def handle_route(self, method: str, subpath: str, query: dict, body: object) -> object:
         verb = (method or "").upper()
@@ -97,7 +118,7 @@ class MbidArtistMerge:
 
     async def _manual_run(self, run_id: str) -> None:
         try:
-            await self._runner.run("manual", run_id=run_id)
+            await self._notify(await self._runner.run("manual", run_id=run_id))
         except Exception:  # noqa: BLE001 - nobody awaits this task
             self._log.exception("mbid-artist-merge internal_error trigger=manual run=%s", run_id)
 

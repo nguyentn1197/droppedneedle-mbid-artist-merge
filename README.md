@@ -112,7 +112,9 @@ the next run continues where this one stopped.
 
 The server log has one summary line per run
 (`mbid-artist-merge run=… status=ok dry_run=true would_merge=1 merged=0 …`) and one
-line per merge.
+line per merge. After a run that merged something, the plugin also publishes a
+`plugin_notice` ("MBID Artist Merge: 1 artist merged"); only other plugins
+subscribed to notices see it, nothing in the DroppedNeedle UI does.
 
 ## Going live
 

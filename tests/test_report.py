@@ -11,6 +11,7 @@ from mbid_artist_merge.report import (
     RunReport,
     capped_json,
     iso,
+    notice_for,
     public_url,
     redact,
     summary_line,
@@ -130,3 +131,16 @@ def test_summary_line() -> None:
 
 def test_iso_is_utc_z() -> None:
     assert iso(AT) == "2026-10-09T05:00:00Z"
+
+
+def test_notice_only_for_merges() -> None:
+    report = new_report()
+    report.add_decision(Decision(Outcome.WOULD_MERGE, SOURCE, target=TARGET), AT)
+    assert notice_for(report.data) is None
+    report.add_decision(Decision(Outcome.MERGED, SOURCE, target=TARGET), AT)
+    report.add_decision(Decision(Outcome.MERGED, SOURCE, target=TARGET), AT)
+    notice = notice_for(report.data, limit=40)
+    assert notice is not None
+    assert notice["title"] == "MBID Artist Merge: 2 artists merged"
+    assert len(notice["body"]) <= 40
+    assert notice["body"].startswith("Otonose Kanade -> 音乃瀬奏")
